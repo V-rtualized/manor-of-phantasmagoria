@@ -38,26 +38,26 @@ export const Roles: Role[] = [
 		name: 'DEAD',
 		color: '#a30e0e',
 	},
-  {
-    name: 'HOST',
-    color: '#000000',
-    hidden: true
-  }
+	{
+		name: 'HOST',
+		color: '#000000',
+		hidden: true,
+	},
 ]
 
 export const Channels: Channel[] = [
-  {
-    name: 'guest-sending-stone',
-    category: Categories[1],
-    type: ChannelType.GuildText,
-    canUse: [Roles[0]]
-  },
-  {
-    name: 'host-sending-stone',
-    category: Categories[1],
-    type: ChannelType.GuildText,
-    canUse: []
-  },
+	{
+		name: 'guest-sending-stone',
+		category: Categories[1],
+		type: ChannelType.GuildText,
+		canUse: [Roles[0]],
+	},
+	{
+		name: 'host-sending-stone',
+		category: Categories[1],
+		type: ChannelType.GuildText,
+		canUse: [],
+	},
 	{
 		name: 'Front Hall',
 		category: Categories[2],
