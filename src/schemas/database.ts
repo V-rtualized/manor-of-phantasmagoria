@@ -1,11 +1,20 @@
 import { Snowflake } from 'discord.js'
+import GameCharacter from '../characters/GameCharacter'
+
+export type DBPlayer = {
+  id: Snowflake,
+  room: string,
+  location: string,
+  inventory: number,
+  character: string
+}
 
 export type Player = {
   id: Snowflake,
   room: string,
   location: string,
   inventory: number,
-  character: Character
+  character: GameCharacter
 }
 
 export type Team = 'GUEST' | 'HOST' | 'NEUTRAL'
@@ -13,20 +22,6 @@ export type Guest_Position = 'INVESTIGATIVE' | 'PROTECTIVE' | 'SUPPORT' | 'KILLI
 export type Host_Position = 'SUPPORT' | 'KILLING' | 'OTHER'
 export type Neutral_Position = 'EVIL' | 'BENIGN'
 export type Position = Guest_Position | Host_Position | Neutral_Position
-
-export type Character = {
-  name: string,
-  team: 'GUEST',
-  position: Guest_Position
-} | {
-  name: string,
-  team: 'HOST',
-  position: Host_Position
-} | {
-  name: string,
-  team: 'NEUTRAL',
-  position: Neutral_Position
-}
 
 export const SelectType = {
 	SINGLE: 'SINGLE',
