@@ -18,7 +18,7 @@ class Butler extends GameCharacter {
 		super(ButlerData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Hosts*
 
 **Night Ability:** Change the perceived role and visitors of someone else when they are observered by other characters

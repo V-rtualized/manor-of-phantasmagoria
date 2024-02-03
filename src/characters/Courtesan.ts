@@ -17,7 +17,7 @@ class Courtesan extends GameCharacter {
 		super(CourtesanData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *None*
 
 **Night Ability:** Choose someone to seduce and control, then choose a victim

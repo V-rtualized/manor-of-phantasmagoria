@@ -16,7 +16,7 @@ class Cuirasse extends GameCharacter {
 		super(CuirasseData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Guests*
 
 **Night Ability:** Choose someone to protect with their life, or protect themselves once

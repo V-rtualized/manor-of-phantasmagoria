@@ -1,5 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 // Eslint disable because the kill function is broken
+
+/* eslint-disable no-unused-vars */
+// Eslint disable because abstract class
+
 import { ChatInputCommandInteraction, ColorResolvable } from 'discord.js'
 import { Team, Position } from '../schemas/database'
 
@@ -48,9 +52,11 @@ abstract class GameCharacter {
 		return this._color
 	}
 
-  abstract get description(): string
+	static get description(): string {
+		throw new Error('Not Implemented (GameCharacter.description)')
+	}
 
-  canBeSelected = (): boolean => true
+	canBeSelected = (): boolean => true
 
   abstract selectAction(interaction: ChatInputCommandInteraction): boolean
 

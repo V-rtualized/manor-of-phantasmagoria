@@ -16,7 +16,7 @@ class Steward extends GameCharacter {
 		super(StewardData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Hosts*
 
 **Night Ability:** Choose someone to kill

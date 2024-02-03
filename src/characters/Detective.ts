@@ -16,7 +16,7 @@ class Detective extends GameCharacter {
 		super(DetectiveData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Guests*
 
 **Night Ability:** Choose someone to *Investigate*

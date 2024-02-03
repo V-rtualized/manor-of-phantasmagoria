@@ -16,7 +16,7 @@ class Master extends GameCharacter {
 		super(MasterData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Hosts*
 
 **Night Ability:** Choose someone to kill

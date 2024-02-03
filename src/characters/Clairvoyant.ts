@@ -16,7 +16,7 @@ class Clairvoyant extends GameCharacter {
 		super(ClairvoyantData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Guests*
 
 **Night Ability:** Choose someone to *Watch*

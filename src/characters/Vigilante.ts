@@ -16,7 +16,7 @@ class Vigilante extends GameCharacter {
 		super(VigilanteData)
 	}
 
-	get description() {
+	static get description() {
 		return `**Team:** *Guests*
 
 		**Night Ability:** Choose someone to kill

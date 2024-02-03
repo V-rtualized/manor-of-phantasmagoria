@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+// Eslint disable because types file
+
 import { SlashCommandBuilder, Collection, AutocompleteInteraction, ChatInputCommandInteraction, ModalSubmitInteraction, CacheType, Events, Snowflake } from 'discord.js'
 import mongoose from 'mongoose'
 

@@ -11,14 +11,36 @@ export type DBPlayer = {
   character: string
 }
 
+const PoolConfig = {
+	host: 'db',
+	password: process.env.POSTGRES_PASSWORD,
+}
+
 const Database = {
+	initSchema: async () => {
+		const pool = new Pool(PoolConfig)
+
+		const client = await pool.connect()
+
+		try {
+			await client.query(`
+        CREATE TABLE IF NOT EXISTS Player (
+          id VARCHAR(255) PRIMARY KEY,
+          room VARCHAR(255),
+          location VARCHAR(255),
+          inventory BIT(3),
+          character VARCHAR(255)
+        );
+      `)
+		}
+		finally {
+			client.release()
+		}
+	},
 	membersToPlayers: async (members: GuildMember[]): Promise<Player[]> => {
 		const players: Player[] = []
 
-		const pool = new Pool({
-			host: 'db',
-			password: process.env.POSTGRES_PASSWORD,
-		})
+		const pool = new Pool(PoolConfig)
 
 		const client = await pool.connect()
 
@@ -48,5 +70,7 @@ const Database = {
 		return players
 	},
 }
+
+Database.initSchema()
 
 export default Database

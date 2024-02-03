@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ChatInputCommandInteraction, CacheType, ButtonStyle, ButtonInteraction } from 'discord.js'
 import { SlashCommand } from '../types'
-import { CharacterList } from '../characters'
+import { CharacterList, gameCharacterDescriptionFromName } from '../characters'
 
 const command : SlashCommand = {
 	// @ts-ignore Not sure why it wants this
@@ -11,13 +11,13 @@ const command : SlashCommand = {
 			option.setName('character')
 				.setDescription('The character to check the description of. Leave blank to check all.')
 				.addChoices(
-					...CharacterList.map(c => ({ name: c.character, value: c.character })),
+					...CharacterList.map(c => ({ name: c.name, value: c.name })),
 				)),
 	execute: async interaction => {
 		const characterName = interaction.options.getString('character')
 
 		if (characterName) {
-			const CharacterData = CharacterList.find(c => c.character === characterName)
+			const CharacterData = CharacterList.find(c => c.name === characterName)
 
 			if (CharacterData === undefined) {
 				await interaction.reply({ content: 'An unknown error occurred' })
@@ -26,8 +26,8 @@ const command : SlashCommand = {
 
 			const embed = new EmbedBuilder()
 				.setColor(CharacterData.color)
-				.setTitle(CharacterData.character)
-				.setDescription(CharacterData.description)
+				.setTitle(CharacterData.name)
+				.setDescription(gameCharacterDescriptionFromName(CharacterData.name) || '')
 
 			await interaction.reply({ embeds: [embed] })
 			return
@@ -42,8 +42,8 @@ const command : SlashCommand = {
 const replyCharacterList = async (interaction: ChatInputCommandInteraction<CacheType> | ButtonInteraction, index: number, init: boolean) => {
 	const embed = new EmbedBuilder()
 		.setColor(CharacterList[index].color)
-		.setTitle(CharacterList[index].character)
-		.setDescription(CharacterList[index].description)
+		.setTitle(CharacterList[index].name)
+		.setDescription(gameCharacterDescriptionFromName(CharacterList[index].name) || '')
 
 	const row = new ActionRowBuilder<ButtonBuilder>()
 		.addComponents(
