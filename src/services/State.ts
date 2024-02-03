@@ -1,6 +1,6 @@
 import { Collection, Snowflake } from 'discord.js'
 
-type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'STARTED' | 'ENDED'
+type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
 
 // The started and players states are being used for multiple reasons depending on the state
 // PREGAME - time since reset - all players are dead
@@ -34,7 +34,7 @@ class State {
 	start = () => {
 		this._state = 'STARTING'
 		this._started = unixEpochInSeconds()
-		this._state = 'STARTED'
+		this._state = 'DAY'
 		this._started = unixEpochInSeconds()
 	}
 
@@ -47,6 +47,12 @@ class State {
 		this._state = 'PREGAME'
 		this._started = unixEpochInSeconds()
 	}
+
+	get state() {
+		return this._state
+	}
+
+	isAlive = (id: Snowflake): boolean => this._players.get(id) === 'ALIVE'
 }
 
 class GlobalStateInstance {
