@@ -21,3 +21,6 @@ export const CharacterList: Array<GameCharacter> = [butler, clairvoyant, courtes
 export const GuestList: Array<GameCharacter> = [clairvoyant, cuirasse, detective, vigilante]
 export const HostList: Array<GameCharacter> = [butler, master, steward]
 export const NeutralList: Array<GameCharacter> = [courtesan]
+
+
+export const gameCharacterFromName = (name: string): GameCharacter | undefined => CharacterList.find(gc => gc.character === name)

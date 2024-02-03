@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, Interaction, ChatInputCommandInteraction, CacheType, ButtonStyle, ButtonInteraction } from 'discord.js'
+import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ChatInputCommandInteraction, CacheType, ButtonStyle, ButtonInteraction } from 'discord.js'
 import { SlashCommand } from '../types'
 import { CharacterList } from '../characters'
 

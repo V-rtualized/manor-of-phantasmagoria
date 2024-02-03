@@ -11,11 +11,7 @@ export type Channel = {
   canUse: Role[]
 }
 
-export type Role = {
-  name: string,
-  color: string,
-  hidden?: boolean
-}
+export type Role = 'ALIVE' | 'DEAD'
 
 export const Categories: Category[] = [
 	{
@@ -26,22 +22,6 @@ export const Categories: Category[] = [
 	},
 	{
 		name: 'Manor',
-	},
-]
-
-export const Roles: Role[] = [
-	{
-		name: 'ALIVE',
-		color: '#36b357',
-	},
-	{
-		name: 'DEAD',
-		color: '#a30e0e',
-	},
-	{
-		name: 'HOST',
-		color: '#000000',
-		hidden: true,
 	},
 ]
 
