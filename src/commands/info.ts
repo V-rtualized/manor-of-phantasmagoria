@@ -36,7 +36,6 @@ const command : SlashCommand = {
 		await replyCharacterList(interaction, 0, true)
 
 	},
-	cooldown: 10,
 }
 
 const replyCharacterList = async (interaction: ChatInputCommandInteraction<CacheType> | ButtonInteraction, index: number, init: boolean) => {

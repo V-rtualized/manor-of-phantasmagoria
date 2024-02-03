@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, GuildTextBasedChannel } from 'discord.js'
+import { SlashCommandBuilder, GuildTextBasedChannel } from 'discord.js'
 import { SlashCommand } from '../types'
 import Clairvoyant from '../characters/Clairvoyant'
 
@@ -14,7 +14,6 @@ const command : SlashCommand = {
 
 		new Clairvoyant().selectAction(interaction)
 	},
-	cooldown: 10,
 }
 
 export default command
