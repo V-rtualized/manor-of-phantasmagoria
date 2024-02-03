@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, Collection, AutocompleteInteraction, ChatInputCommandInteraction, ModalSubmitInteraction, CacheType, Events } from 'discord.js'
+import { SlashCommandBuilder, Collection, AutocompleteInteraction, ChatInputCommandInteraction, ModalSubmitInteraction, CacheType, Events, Snowflake } from 'discord.js'
 import mongoose from 'mongoose'
 
 export interface SlashCommand {
@@ -30,9 +30,14 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             DISCORD_TOKEN: string,
-            BOT_ID: string,
-            OWNER_ID: string,
-            GUILD_ID: string
+            BOT_ID: Snowflake,
+            OWNER_ID: Snowflake,
+            GUILD_ID: Snowflake,
+            ALIVE_ROLE: Snowflake,
+            DEAD_ROLE: Snowflake,
+            MASTER_ROLE: Snowflake,
+            SYSTEM_CATEGORY: Snowflake,
+            POSTGRES_PASSWORD: string
         }
     }
 }
