@@ -1,7 +1,15 @@
-import { GuildMember } from 'discord.js'
-import { DBPlayer, Player } from '../schemas/database'
+import { GuildMember, Snowflake } from 'discord.js'
+import { Player } from '../schemas/database'
 import { Pool } from 'pg'
-import { gameCharacterFromName } from '../characters'
+import { gameCharacterDataFromName } from '../characters'
+
+export type DBPlayer = {
+  id: Snowflake,
+  room: string,
+  location: string,
+  inventory: number,
+  character: string
+}
 
 const Database = {
 	membersToPlayers: async (members: GuildMember[]): Promise<Player[]> => {
@@ -24,7 +32,7 @@ const Database = {
 				const result: { rows: DBPlayer[] } = await client.query(query)
 
 				if (result.rows.length > 0) {
-					const gameCharacter = gameCharacterFromName(result.rows[0].character)
+					const gameCharacter = gameCharacterDataFromName(result.rows[0].character)
 					if (gameCharacter === undefined) {
 						throw new Error('Game Character not found')
 					}

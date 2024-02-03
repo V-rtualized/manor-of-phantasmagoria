@@ -1,20 +1,12 @@
 import { Snowflake } from 'discord.js'
-import GameCharacter from '../characters/GameCharacter'
-
-export type DBPlayer = {
-  id: Snowflake,
-  room: string,
-  location: string,
-  inventory: number,
-  character: string
-}
+import { GameCharacterData } from '../characters/GameCharacter'
 
 export type Player = {
   id: Snowflake,
   room: string,
   location: string,
   inventory: number,
-  character: GameCharacter
+  character: GameCharacterData
 }
 
 export type Team = 'GUEST' | 'HOST' | 'NEUTRAL'

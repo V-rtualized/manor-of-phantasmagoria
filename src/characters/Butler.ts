@@ -1,5 +1,12 @@
 import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
-import GameCharacter, { Investigated } from './GameCharacter'
+import GameCharacter, { GameCharacterData, Investigated } from './GameCharacter'
+
+export const ButlerData: GameCharacterData = {
+	name: 'Butler',
+	team: 'HOST',
+	position: 'SUPPORT',
+	color: '#191970',
+}
 
 class Butler extends GameCharacter {
 
@@ -8,7 +15,7 @@ class Butler extends GameCharacter {
 	private _selectedVisitors: Snowflake[] | undefined
 
 	constructor() {
-		super('Butler', 'HOST', 'SUPPORT', '#191970')
+		super(ButlerData)
 	}
 
 	get description() {

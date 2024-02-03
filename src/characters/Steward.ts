@@ -1,12 +1,19 @@
 import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
-import GameCharacter from './GameCharacter'
+import GameCharacter, { GameCharacterData } from './GameCharacter'
+
+export const StewardData: GameCharacterData = {
+	name: 'Steward',
+	team: 'HOST',
+	position: 'KILLING',
+	color: '#006400',
+}
 
 class Steward extends GameCharacter {
 
 	private _target: Snowflake | undefined
 
 	constructor() {
-		super('Steward', 'HOST', 'KILLING', '#006400')
+		super(StewardData)
 	}
 
 	get description() {
