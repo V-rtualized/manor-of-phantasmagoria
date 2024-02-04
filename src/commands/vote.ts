@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, SlashCommandUserOption } from 'discord.js'
 import { getThemeColor } from '../functions'
 import { SlashCommand } from '../types'
-import State from '../services/State'
+import { getStateInstance } from '../services/State'
 
 const command : SlashCommand = {
 	// @ts-ignore
@@ -14,18 +14,19 @@ const command : SlashCommand = {
 			.setRequired(true)),
 	execute: interaction => {
 		const target = interaction.options.get('target')
+		const state = getStateInstance()
 
-		if (State === null) {
+		if (state === null) {
 			interaction.reply({ content: 'Cannot start a vote: State not initialized' })
 			return
 		}
 
-		if (!interaction.member || !State.isAlive(interaction.member.user.id)) {
+		if (!interaction.member || !state.isAlive(interaction.member.user.id)) {
 			interaction.reply({ content: 'Voting only allowed by alive players' })
 			return
 		}
 
-		if (State.state !== 'DAY') {
+		if (state.state !== 'DAY') {
 			interaction.reply({ content: 'Voting only allowed during the day' })
 			return
 		}
@@ -35,7 +36,7 @@ const command : SlashCommand = {
 			return
 		}
 
-		if (!State.isAlive(target.user.id)) {
+		if (!state.isAlive(target.user.id)) {
 			interaction.reply({ content: 'Voting only allowed against targets who are alive' })
 		}
 

@@ -1,4 +1,6 @@
-import { Collection, Snowflake } from 'discord.js'
+import { Client, Collection, Snowflake } from 'discord.js'
+import Discord from './Discord'
+import { color } from '../functions'
 
 type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
 
@@ -43,7 +45,9 @@ class State {
 		this._started = unixEpochInSeconds()
 	}
 
-	reset = () => {
+	reset = (client: Client) => {
+		Discord.deleteAllMutableChannels(client)
+		Discord.deleteAllMutableRoles(client)
 		this._state = 'PREGAME'
 		this._started = unixEpochInSeconds()
 	}
@@ -63,7 +67,7 @@ class GlobalStateInstance {
 		return this._stateInstance
 	}
 
-	set stateInstance(input: StateInput) {
+	setStateInstance(input: StateInput) {
 		this._stateInstance = new State(input)
 	}
 
@@ -71,5 +75,9 @@ class GlobalStateInstance {
 
 const gsi = new GlobalStateInstance()
 
-export default gsi.stateInstance
-export const initializeState = (input: StateInput) => gsi.stateInstance = input
+
+export const getStateInstance = () => gsi.stateInstance
+export const initializeState = (input: StateInput) => {
+	console.log(color('text', `State initialized as ${color('variable', input.state)}`))
+	gsi.setStateInstance(input)
+}

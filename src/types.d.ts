@@ -39,6 +39,7 @@ declare global {
             ALIVE_ROLE: Snowflake,
             DEAD_ROLE: Snowflake,
             MASTER_ROLE: Snowflake,
+            BOT_ROLE: Snowflake,
             SYSTEM_CATEGORY: Snowflake,
             POSTGRES_PASSWORD: string
         }

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, SlashCommandStringOption } from 'discord.js'
 import { SlashCommand } from '../types'
-import State from '../services/State'
+import { getStateInstance } from '../services/State'
 
 const STATE = {
 	RESET: 'RESET',
@@ -27,7 +27,9 @@ const command : SlashCommand = {
 	execute: interaction => {
 		const state = interaction.options.get('state')
 
-		if (State === null) {
+		const currState = getStateInstance()
+
+		if (currState === null) {
 			interaction.reply({ ephemeral: true, content: 'Error: State not initialized' })
 			console.error('Error: State not initialized')
 			return
@@ -38,10 +40,10 @@ const command : SlashCommand = {
 			content: 'Updating State...',
 		})
 		if (state?.value === STATE.RESET) {
-			State.reset()
+			currState.reset(interaction.client)
 		}
 		else if (state?.value === STATE.START) {
-			State.invite()
+			currState.invite()
 		}
 	},
 }
