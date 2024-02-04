@@ -33,6 +33,11 @@ class State {
 		this._started = unixEpochInSeconds()
 	}
 
+	createGameChannels = (client: Client) => {
+		Discord.createGameRoles(client)
+		Discord.createGameChannels(client)
+	}
+
 	start = () => {
 		this._state = 'STARTING'
 		this._started = unixEpochInSeconds()

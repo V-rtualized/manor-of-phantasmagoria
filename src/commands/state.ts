@@ -43,7 +43,7 @@ const command : SlashCommand = {
 			currState.reset(interaction.client)
 		}
 		else if (state?.value === STATE.START) {
-			currState.invite()
+			currState.createGameChannels(interaction.client)
 		}
 	},
 }
