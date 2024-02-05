@@ -200,6 +200,38 @@ const Discord = {
 			await lastMessage.edit({ embeds: [embed], files: [image] })
 		}
 	},
+	getNamedRole: async (client: Client, id: Snowflake) => {
+		const guild = await Discord.getGuild(client)
+		const member = await guild.members.fetch(id)
+		return (await guild.roles.fetch()).filter((value) => value.name === member.user.username).at(0)
+	},
+	getVoiceChannelIdFromName: async (client: Client, name: string) => {
+		const guild = await Discord.getGuild(client)
+		return (await guild.channels.fetch()).filter((value) => value?.type === ChannelType.GuildVoice && value?.name === name).at(0)
+	},
+	updateVoiceChannelPermissions: async (client: Client, userId: Snowflake, voiceChannelNames: string[]) => {
+		const guild = await Discord.getGuild(client)
+		const allVoiceChannels = (await guild.channels.fetch()).filter(v => v?.type === ChannelType.GuildVoice)
+		const allowedChannels = allVoiceChannels.filter((value) => value ? voiceChannelNames.includes(value.name) : false)
+		const role = await Discord.getNamedRole(client, userId)
+
+		if (role === undefined) return
+
+		for (const [, vc] of allVoiceChannels) {
+			if (vc === null) continue
+			if (allowedChannels.find((value) => value?.id === vc.id)) {
+				vc.permissionOverwrites.edit(role, {
+					ViewChannel: true,
+					Connect: true,
+					Speak: true,
+					SendMessages: true,
+				})
+			}
+			else {
+				vc.permissionOverwrites.delete(role)
+			}
+		}
+	},
 }
 
 export default Discord
