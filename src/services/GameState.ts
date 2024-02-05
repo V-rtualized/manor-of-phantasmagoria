@@ -17,7 +17,7 @@ type StateInput = {
 
 const unixEpochInSeconds = () => Math.round(Date.now() / 1000)
 
-class State {
+class GameState {
 	_state: States
 	_started: number
 	_players: Collection<Snowflake, 'ALIVE' | 'DEAD'>
@@ -67,14 +67,14 @@ class State {
 
 class GlobalStateInstance {
 
-	private _stateInstance: State | null = null
+	private _stateInstance: GameState | null = null
 
-	get stateInstance(): State | null {
+	get stateInstance(): GameState | null {
 		return this._stateInstance
 	}
 
 	setStateInstance(input: StateInput) {
-		this._stateInstance = new State(input)
+		this._stateInstance = new GameState(input)
 	}
 
 }

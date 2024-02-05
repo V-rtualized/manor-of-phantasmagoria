@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, SlashCommandStringOption } from 'discord.js'
 import { SlashCommand } from '../types'
-import { getStateInstance } from '../services/State'
+import { getStateInstance } from '../services/GameState'
 
 const STATE = {
 	RESET: 'RESET',

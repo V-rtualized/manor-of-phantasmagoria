@@ -32,6 +32,7 @@ export interface BotEvent {
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
+            NODE_ENV: 'development' | 'production' | undefined,
             DISCORD_TOKEN: string,
             BOT_ID: Snowflake,
             OWNER_ID: Snowflake,

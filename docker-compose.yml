@@ -9,6 +9,8 @@ services:
       - db
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
 
   db:
     image: postgres

@@ -3,7 +3,8 @@ import { SlashCommand } from './types'
 import { config } from 'dotenv'
 import { readdirSync } from 'fs'
 import { join } from 'path'
-config()
+
+if (process.env.NODE_ENV === undefined) config()
 
 const { Guilds, MessageContent, GuildMessages, GuildMembers, GuildVoiceStates } = GatewayIntentBits
 const client = new Client({ intents:[Guilds, MessageContent, GuildMessages, GuildMembers, GuildVoiceStates] })

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, SlashCommandUserOption } from 'discord.js'
 import { getThemeColor } from '../functions'
 import { SlashCommand } from '../types'
-import { getStateInstance } from '../services/State'
+import { getStateInstance } from '../services/GameState'
 
 const command : SlashCommand = {
 	// @ts-ignore
