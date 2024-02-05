@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
 import GameCharacter, { GameCharacterData } from './GameCharacter'
 
 export const MasterData: GameCharacterData = {
@@ -16,16 +16,28 @@ class Master extends GameCharacter {
 		super(MasterData)
 	}
 
+	static get image() {
+		return new AttachmentBuilder('./assets/master.png')
+	}
+
 	static get description() {
-		return `**Team:** *Hosts*
-
-**Night Ability:** Choose someone to kill
-
-**Investigation Result:** *Killing* Role
-
-**Win Condition:** All *Guests* are eliminated
-
-**Ability Conditions:** Visits their target, cannot target *Hosts*`
+		return new EmbedBuilder()
+			.setColor(MasterData.color)
+			.setTitle(MasterData.name)
+			.addFields({
+				name: 'Team', value: MasterData.team, inline: true,
+			}, {
+				name: 'Investigation Result', value: `${MasterData.position} Role`, inline: true,
+			}, {
+				name: 'Win Condition', value: 'All *Guests* are eliminated', inline: true,
+			}, {
+				name: '\u200B', value: '\u200B',
+			}, {
+				name: 'Night Ability', value: 'Choose someone to kill',
+			}, {
+				name: 'Ability Conditions', value: 'Visits their target, cannot target *Hosts*',
+			})
+			.setThumbnail('attachment://master.png')
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

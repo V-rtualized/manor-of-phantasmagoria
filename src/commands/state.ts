@@ -4,7 +4,9 @@ import { getStateInstance } from '../services/State'
 
 const STATE = {
 	RESET: 'RESET',
-	START: 'START',
+	INVITE: 'INVITE',
+	F_START: 'F_START',
+	F_END: 'F_END',
 }
 
 const command : SlashCommand = {
@@ -20,11 +22,17 @@ const command : SlashCommand = {
 				name: STATE.RESET,
 				value: STATE.RESET,
 			}, {
-				name: STATE.START,
-				value: STATE.START,
+				name: STATE.INVITE,
+				value: STATE.INVITE,
+			}, {
+				name: STATE.F_START,
+				value: STATE.F_START,
+			}, {
+				name: STATE.F_END,
+				value: STATE.F_END,
 			})
 			.setRequired(true)),
-	execute: interaction => {
+	execute: async interaction => {
 		const state = interaction.options.get('state')
 
 		const currState = getStateInstance()
@@ -40,10 +48,16 @@ const command : SlashCommand = {
 			content: 'Updating State...',
 		})
 		if (state?.value === STATE.RESET) {
-			currState.reset(interaction.client)
+			await currState.reset(interaction.client)
 		}
-		else if (state?.value === STATE.START) {
-			currState.createGameChannels(interaction.client)
+		else if (state?.value === STATE.INVITE) {
+			await currState.invite(interaction.client)
+		}
+		else if (state?.value === STATE.F_START) {
+			await currState.start(interaction.client)
+		}
+		else if (state?.value === STATE.F_END) {
+			await currState.end(interaction.client)
 		}
 	},
 }

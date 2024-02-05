@@ -41,7 +41,8 @@ declare global {
             MASTER_ROLE: Snowflake,
             BOT_ROLE: Snowflake,
             SYSTEM_CATEGORY: Snowflake,
-            POSTGRES_PASSWORD: string
+            GRANDFATHER_CHANNEL: Snowflake,
+            POSTGRES_PASSWORD: string,
         }
     }
 }

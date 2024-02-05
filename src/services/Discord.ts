@@ -1,9 +1,25 @@
-import { CategoryChannel, ChannelType, Client, Collection, GuildMember, Snowflake } from 'discord.js'
-import { Categories, Channels, Role } from '../schemas/discord'
+import { AttachmentBuilder, ChannelType, Client, Collection, EmbedBuilder, Guild, GuildMember, GuildTextBasedChannel, Snowflake } from 'discord.js'
+import { Channels, Role } from '../schemas/discord'
 
 const Discord = {
+	getGuild: async (client: Client): Promise<Guild> => client.guilds.fetch(process.env.GUILD_ID),
+	getMembers: async (client: Client): Promise<Collection<Snowflake, GuildMember>> => await (await Discord.getGuild(client)).members.fetch(),
+	getMembersByRole: async (client: Client, role: Role): Promise<GuildMember[]> => {
+		const members = await Discord.getMembers(client)
+
+		const roleMembers: GuildMember[] = []
+		for (const [, member] of members) {
+			const roleData = member.roles.cache.find((r) => r.id === (role === 'ALIVE' ? process.env.ALIVE_ROLE : process.env.DEAD_ROLE))
+
+			if (roleData !== undefined) {
+				roleMembers.push(member)
+			}
+		}
+
+		return roleMembers
+	},
 	createGameChannels: async (client: Client) => {
-		const guild = await client.guilds.fetch(process.env.GUILD_ID)
+		const guild = await Discord.getGuild(client)
 		const members = await Discord.getMembersByRole(client, 'ALIVE')
 
 		const personal = await guild.channels.create({
@@ -107,7 +123,7 @@ const Discord = {
 		}
 	},
 	createGameRoles: async (client: Client) => {
-		const guild = await client.guilds.fetch(process.env.GUILD_ID)
+		const guild = await Discord.getGuild(client)
 		const members = await Discord.getMembersByRole(client, 'ALIVE')
 
 		for (const member of members) {
@@ -119,7 +135,7 @@ const Discord = {
 		}
 	},
 	deleteAllMutableChannels: async (client: Client) => {
-		const guild = await client.guilds.fetch(process.env.GUILD_ID)
+		const guild = await Discord.getGuild(client)
 		const channels = await guild.channels.fetch()
 
 		for (const [, channel] of channels) {
@@ -129,7 +145,7 @@ const Discord = {
 		}
 	},
 	deleteAllMutableRoles: async (client: Client) => {
-		const guild = await client.guilds.fetch(process.env.GUILD_ID)
+		const guild = await Discord.getGuild(client)
 		const roles = await guild.roles.fetch()
 
 		for (const [id, role] of roles) {
@@ -151,20 +167,38 @@ const Discord = {
 		}
 		return collection
 	},
-	getMembersByRole: async (client: Client, role: Role): Promise<GuildMember[]> => {
-		const guild = await client.guilds.fetch(process.env.GUILD_ID)
-		const members = await guild.members.fetch()
+	updateGrandfatherClock: async (client: Client, state: string, timestamp: number, playerGroups: { status: string, players: string[] }[]): Promise<void> => {
+		const guild = await Discord.getGuild(client)
 
-		const roleMembers: GuildMember[] = []
-		for (const [, member] of members) {
-			const roleData = member.roles.cache.find((r) => r.id === (role === 'ALIVE' ? process.env.ALIVE_ROLE : process.env.DEAD_ROLE))
+		const grandfather = await guild.channels.fetch(process.env.GRANDFATHER_CHANNEL)
 
-			if (roleData !== undefined) {
-				roleMembers.push(member)
-			}
+		if (grandfather === null || !grandfather.isTextBased) {
+			throw new Error('Cannot find grandfather channel')
 		}
 
-		return roleMembers
+		const image = new AttachmentBuilder('./assets/grandfather.png')
+		const embed = new EmbedBuilder().setColor('#2f5753')
+			.setTitle('Game Status')
+			.addFields({
+				name: 'State', value: state,
+			}, {
+				name: 'State Started', value: `<t:${timestamp}:R>`,
+			}, {
+				name: '\u200B', value: '\u200B',
+			}, ...playerGroups.map(pg => ({ name: pg.status, value: pg.players.join('\n'), inline: true })))
+			.setImage('attachment://grandfather.png')
+			.setTimestamp()
+			.setFooter({ text: 'This message is updated when the state of the game or the state of players change' })
+
+		const grandfatherText = (grandfather as GuildTextBasedChannel)
+		const lastMessage = (await grandfatherText.messages.fetch()).at(0)
+
+		if (lastMessage === undefined) {
+			await grandfatherText.send({ embeds: [embed], files: [image] })
+		}
+		else {
+			await lastMessage.edit({ embeds: [embed], files: [image] })
+		}
 	},
 }
 

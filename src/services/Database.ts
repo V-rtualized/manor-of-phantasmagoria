@@ -32,6 +32,11 @@ const Database = {
           character VARCHAR(255)
         );
       `)
+			await client.query(`
+        CREATE TABLE IF NOT EXISTS State (
+          id VARCHAR(255) PRIMARY KEY,
+        );
+      `)
 		}
 		finally {
 			client.release()

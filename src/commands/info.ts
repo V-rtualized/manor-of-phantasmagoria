@@ -1,6 +1,6 @@
-import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ChatInputCommandInteraction, CacheType, ButtonStyle, ButtonInteraction } from 'discord.js'
+import { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder, ChatInputCommandInteraction, CacheType, ButtonStyle, ButtonInteraction } from 'discord.js'
 import { SlashCommand } from '../types'
-import { CharacterList, gameCharacterDescriptionFromName } from '../characters'
+import { CharacterList, gameCharacterDescriptionFromName, gameCharacterImageFromName } from '../characters'
 
 const command : SlashCommand = {
 	// @ts-ignore Not sure why it wants this
@@ -24,10 +24,11 @@ const command : SlashCommand = {
 				return
 			}
 
-			const embed = new EmbedBuilder()
-				.setColor(CharacterData.color)
-				.setTitle(CharacterData.name)
-				.setDescription(gameCharacterDescriptionFromName(CharacterData.name) || '')
+			const embed = gameCharacterDescriptionFromName(CharacterData.name)
+
+			if (embed === undefined) {
+				throw new Error('Character description undefined')
+			}
 
 			await interaction.reply({ embeds: [embed] })
 			return
@@ -39,10 +40,15 @@ const command : SlashCommand = {
 }
 
 const replyCharacterList = async (interaction: ChatInputCommandInteraction<CacheType> | ButtonInteraction, index: number, init: boolean) => {
-	const embed = new EmbedBuilder()
-		.setColor(CharacterList[index].color)
-		.setTitle(CharacterList[index].name)
-		.setDescription(gameCharacterDescriptionFromName(CharacterList[index].name) || '')
+	const image = gameCharacterImageFromName(CharacterList[index].name)
+
+	const embed = gameCharacterDescriptionFromName(CharacterList[index].name)
+		?.setTimestamp()
+		.setFooter({ text: 'The functionality of this message expires in 5 minutes' })
+
+	if (image === undefined || embed === undefined) {
+		throw new Error('Character description undefined')
+	}
 
 	const row = new ActionRowBuilder<ButtonBuilder>()
 		.addComponents(
@@ -58,7 +64,7 @@ const replyCharacterList = async (interaction: ChatInputCommandInteraction<Cache
 				.setStyle(ButtonStyle.Primary),
 		)
 
-	const response = init ? await interaction.reply({ embeds: [embed], components: [row] }) : await (interaction as ButtonInteraction).update({ embeds: [embed], components: [row] })
+	const response = init ? await interaction.reply({ embeds: [embed], files: [image], components: [row] }) : await (interaction as ButtonInteraction).update({ embeds: [embed], files: [image], components: [row] })
 
 	try {
 		const selection: ButtonInteraction = await response.awaitMessageComponent({ time: 300_000 }) as ButtonInteraction
@@ -71,7 +77,7 @@ const replyCharacterList = async (interaction: ChatInputCommandInteraction<Cache
 		}
 	}
 	catch (err) {
-		await interaction.editReply({ embeds: [embed], components: [] })
+		await interaction.editReply({ embeds: [embed], files: [image], components: [] })
 	}
 }
 

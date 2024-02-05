@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-vars */
 // Eslint disable because abstract class
 
-import { ChatInputCommandInteraction, ColorResolvable } from 'discord.js'
+import { AttachmentBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from 'discord.js'
 import { Team, Position } from '../schemas/database'
 
 export type Status = 'ALIVE' | 'DEAD'
@@ -52,7 +52,11 @@ abstract class GameCharacter {
 		return this._color
 	}
 
-	static get description(): string {
+	static get image(): AttachmentBuilder {
+		throw new Error('Not Implemented (GameCharacter.image)')
+	}
+
+	static get description(): EmbedBuilder {
 		throw new Error('Not Implemented (GameCharacter.description)')
 	}
 

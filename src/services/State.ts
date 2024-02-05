@@ -2,7 +2,7 @@ import { Client, Collection, Snowflake } from 'discord.js'
 import Discord from './Discord'
 import { color } from '../functions'
 
-type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
+export type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
 
 // The started and players states are being used for multiple reasons depending on the state
 // PREGAME - time since reset - all players are dead
@@ -28,33 +28,34 @@ class State {
 		this._players = input.players
 	}
 
-	invite = () => {
-		this._state = 'INVITING'
+	_setState = async (client: Client, newState: States, aliveMeaning: string, deadMeaning: string) => {
+		this._state = newState
 		this._started = unixEpochInSeconds()
+		Discord.updateGrandfatherClock(client, this._state, this._started, [
+			{ status: aliveMeaning, players: (await Discord.getMembersByRole(client, 'ALIVE')).map(m => m.displayName) },
+			{ status: deadMeaning, players: (await Discord.getMembersByRole(client, 'DEAD')).map(m => m.displayName) },
+		])
 	}
 
-	createGameChannels = (client: Client) => {
-		Discord.createGameRoles(client)
-		Discord.createGameChannels(client)
+	invite = async (client: Client) => {
+		await this._setState(client, 'INVITING', 'Players', 'Spectators')
 	}
 
-	start = () => {
-		this._state = 'STARTING'
-		this._started = unixEpochInSeconds()
-		this._state = 'DAY'
-		this._started = unixEpochInSeconds()
+	start = async (client: Client) => {
+		await this._setState(client, 'STARTING', 'Players', 'Spectators')
+		await Discord.createGameRoles(client)
+		await Discord.createGameChannels(client)
+		await this._setState(client, 'DAY', 'Alive', 'Dead')
 	}
 
-	end = () => {
-		this._state = 'ENDED'
-		this._started = unixEpochInSeconds()
+	end = async (client: Client) => {
+		await this._setState(client, 'ENDED', 'Winners', 'Losers')
 	}
 
-	reset = (client: Client) => {
-		Discord.deleteAllMutableChannels(client)
-		Discord.deleteAllMutableRoles(client)
-		this._state = 'PREGAME'
-		this._started = unixEpochInSeconds()
+	reset = async (client: Client) => {
+		await Discord.deleteAllMutableChannels(client)
+		await Discord.deleteAllMutableRoles(client)
+		await this._setState(client, 'PREGAME', 'Players', 'Spectators')
 	}
 
 	get state() {

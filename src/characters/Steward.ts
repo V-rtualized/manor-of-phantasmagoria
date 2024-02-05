@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
 import GameCharacter, { GameCharacterData } from './GameCharacter'
 
 export const StewardData: GameCharacterData = {
@@ -16,18 +16,30 @@ class Steward extends GameCharacter {
 		super(StewardData)
 	}
 
+	static get image() {
+		return new AttachmentBuilder('./assets/steward.png')
+	}
+
 	static get description() {
-		return `**Team:** *Hosts*
-
-**Night Ability:** Choose someone to kill
-
-**Investigation Result:** *Killing* Role
-
-**Win Condition:** All *Guests* are eliminated
-
-**Ability Conditions:** Visits their target, cannot target *Hosts*
-
-**Additional Information:** This role is not given at the start of the game`
+		return new EmbedBuilder()
+			.setColor(StewardData.color)
+			.setTitle(StewardData.name)
+			.addFields({
+				name: 'Team', value: StewardData.team, inline: true,
+			}, {
+				name: 'Investigation Result', value: `${StewardData.position} Role`, inline: true,
+			}, {
+				name: 'Win Condition', value: 'All *Guests* are eliminated', inline: true,
+			}, {
+				name: '\u200B', value: '\u200B',
+			}, {
+				name: 'Night Ability', value: 'Choose someone to kill',
+			}, {
+				name: 'Ability Conditions', value: 'Visits their target, cannot target *Hosts*',
+			}, {
+				name: 'Additional Information', value: 'This role is not given at the start of the game',
+			})
+			.setThumbnail('attachment://steward.png')
 	}
 
 	canBeSelected = (): boolean => false

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
 import GameCharacter, { GameCharacterData } from './GameCharacter'
 
 export const VigilanteData: GameCharacterData = {
@@ -16,18 +16,30 @@ class Vigilante extends GameCharacter {
 		super(VigilanteData)
 	}
 
-	static get description() {
-		return `**Team:** *Guests*
+	static get image() {
+		return new AttachmentBuilder('./assets/vigilante.png')
+	}
 
-		**Night Ability:** Choose someone to kill
-		
-		**Investigation Result:** *Killing* Role
-		
-		**Win Condition:** All *Hosts* are eliminated
-		
-		**Ability Conditions:** Visits their target, cannot target themselves
-		
-		**Additional Information:** If they kill a *Guest*, the Vigilante dies too`
+	static get description() {
+		return new EmbedBuilder()
+			.setColor(VigilanteData.color)
+			.setTitle(VigilanteData.name)
+			.addFields({
+				name: 'Team', value: VigilanteData.team, inline: true,
+			}, {
+				name: 'Investigation Result', value: `${VigilanteData.position} Role`, inline: true,
+			}, {
+				name: 'Win Condition', value: 'All *Hosts* are eliminated', inline: true,
+			}, {
+				name: '\u200B', value: '\u200B',
+			}, {
+				name: 'Night Ability', value: 'Choose someone to kill',
+			}, {
+				name: 'Ability Conditions', value: 'Visits their target, cannot target themselves',
+			}, {
+				name: 'Additional Information', value: 'If they kill a *Guest*, the Vigilante dies too',
+			})
+			.setThumbnail('attachment://vigilante.png')
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

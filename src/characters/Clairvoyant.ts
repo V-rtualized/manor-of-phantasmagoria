@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
 import GameCharacter, { GameCharacterData } from './GameCharacter'
 
 export const ClairvoyantData: GameCharacterData = {
@@ -16,18 +16,30 @@ class Clairvoyant extends GameCharacter {
 		super(ClairvoyantData)
 	}
 
+	static get image() {
+		return new AttachmentBuilder('./assets/clairvoyant.png')
+	}
+
 	static get description() {
-		return `**Team:** *Guests*
-
-**Night Ability:** Choose someone to *Watch*
-
-**Investigation Result:** *Support* Role
-
-**Win Condition:** All *Hosts* are eliminated
-
-**Ability Conditions:** Visits their target
-
-**Additional Information:** Will determine every person that *visited* their target that night`
+		return new EmbedBuilder()
+			.setColor(ClairvoyantData.color)
+			.setTitle(ClairvoyantData.name)
+			.addFields({
+				name: 'Team', value: ClairvoyantData.team, inline: true,
+			}, {
+				name: 'Investigation Result', value: `${ClairvoyantData.position} Role`, inline: true,
+			}, {
+				name: 'Win Condition', value: 'All *Hosts* are eliminated', inline: true,
+			}, {
+				name: '\u200B', value: '\u200B',
+			}, {
+				name: 'Night Ability', value: 'Choose someone to *Watch*',
+			}, {
+				name: 'Ability Conditions', value: 'Visits their target',
+			}, {
+				name: 'Additional Information', value: 'Will determine every person that *visited* their target that night',
+			})
+			.setThumbnail('attachment://clairvoyant.png')
 	}
 
 	selectAction = (interaction: ChatInputCommandInteraction): boolean => {
