@@ -12,7 +12,7 @@ const event: BotEvent = {
 
 		if (newState.channel === null) {
 			if (oldState.channel === null) throw new Error('oldState and newState both not defined (voiceStateUpdate)')
-			Discord.updateVoiceChannelPermissions(client, memberId, [oldState.channel.name])
+			Discord.updateVoiceChannelPermissions(memberId, [oldState.channel.name])
 			return
 		}
 
@@ -22,7 +22,7 @@ const event: BotEvent = {
 		if (room === undefined) throw new Error('Room not found in schema (voiceStateUpdate)')
 
 		const allowedChannels = [newChannelName, ...room.to]
-		Discord.updateVoiceChannelPermissions(client, memberId, allowedChannels)
+		Discord.updateVoiceChannelPermissions(memberId, allowedChannels)
 	},
 }
 

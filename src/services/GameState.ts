@@ -1,91 +1,71 @@
-import { Client, Collection, Snowflake } from 'discord.js'
 import Discord from './Discord'
 import { color } from '../functions'
 import Database from './Database'
 
 export type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
 
-// The started and players states are being used for multiple reasons depending on the state
-// PREGAME - time since reset - all players are dead
-// INVITING - time since invite message went up - alive players accepted, dead players denied
-// STARTED - time since the game started - alive players are alive, dead players are dead or never joined
-// ENDED - time since someone won - alive players won, dead players lost
-type StateInput = {
-  state: States
-  started: number
-  players: Collection<Snowflake, 'ALIVE' | 'DEAD'>
-}
-
 const unixEpochInSeconds = () => Math.round(Date.now() / 1000)
 
+// The started variable is being used for multiple reasons depending on the state
+// PREGAME - time since reset
+// INVITING - time since invite message went up
+// STARTED - time since the game started
+// ENDED - time since someone won
 class GameState {
 	_state: States
 	_started: number
-	_players: Collection<Snowflake, 'ALIVE' | 'DEAD'>
 
-	constructor(input: StateInput) {
-		this._state = input.state
-		this._started = input.started
-		this._players = input.players
-	}
-
-	_setState = async (client: Client, newState: States, aliveMeaning: string, deadMeaning: string, save: boolean) => {
-		this._state = newState
+	constructor() {
+		this._state = 'PREGAME'
 		this._started = unixEpochInSeconds()
-		Discord.updateGrandfatherClock(client, this._state, this._started, [
-			{ status: aliveMeaning, players: (await Discord.getMembersByRole(client, 'ALIVE')).map(m => m.displayName) },
-			{ status: deadMeaning, players: (await Discord.getMembersByRole(client, 'DEAD')).map(m => m.displayName) },
-		])
-		if (save) Database.setState({ state: this._state, started: this._started })
 	}
 
-	invite = async (client: Client) => {
-		await this._setState(client, 'INVITING', 'Players', 'Spectators', true)
-	}
-
-	start = async (client: Client) => {
-		await this._setState(client, 'STARTING', 'Players', 'Spectators', true)
-		await Discord.createGameRoles(client)
-		await Discord.createGameChannels(client)
-		await this._setState(client, 'DAY', 'Alive', 'Dead', true)
-	}
-
-	end = async (client: Client) => {
-		await this._setState(client, 'ENDED', 'Winners', 'Losers', true)
-	}
-
-	reset = async (client: Client) => {
-		await Discord.deleteAllMutableChannels(client)
-		await Discord.deleteAllMutableRoles(client)
-		await this._setState(client, 'PREGAME', 'Players', 'Spectators', true)
+	restore = (state: States, started: number) => {
+		this._state = state
+		this._started = started
+		console.log(color('text', `GameState restored to ${color('variable', state)}`))
 	}
 
 	get state() {
 		return this._state
 	}
 
-	isAlive = (id: Snowflake): boolean => this._players.get(id) === 'ALIVE'
-}
-
-class GlobalStateInstance {
-
-	private _stateInstance: GameState | null = null
-
-	get stateInstance(): GameState | null {
-		return this._stateInstance
+	get started() {
+		return this._started
 	}
 
-	setStateInstance(input: StateInput) {
-		this._stateInstance = new GameState(input)
+	_setState = async (newState: States, aliveMeaning: string, deadMeaning: string, save: boolean) => {
+		this._state = newState
+		this._started = unixEpochInSeconds()
+		Discord.updateGrandfatherClock(this._state, this._started, [
+			{ status: aliveMeaning, players: (await Discord.getMembersByRole('ALIVE')).map(m => m.displayName) },
+			{ status: deadMeaning, players: (await Discord.getMembersByRole('DEAD')).map(m => m.displayName) },
+		])
+		if (save) Database.setState({ state: this._state, started: this._started })
 	}
 
+	invite = async () => {
+		await this._setState('INVITING', 'Players', 'Spectators', true)
+	}
+
+	start = async () => {
+		await this._setState('STARTING', 'Players', 'Spectators', true)
+		await Discord.createGameRoles()
+		await Discord.createGameChannels()
+		await this._setState('DAY', 'Alive', 'Dead', true)
+	}
+
+	end = async () => {
+		await this._setState('ENDED', 'Winners', 'Losers', true)
+	}
+
+	reset = async () => {
+		await Discord.deleteAllMutableChannels()
+		await Discord.deleteAllMutableRoles()
+		await this._setState('PREGAME', 'Players', 'Spectators', true)
+	}
 }
 
-const gsi = new GlobalStateInstance()
+const GameStateInstance = new GameState()
 
-
-export const getStateInstance = () => gsi.stateInstance
-export const initializeState = (input: StateInput) => {
-	console.log(color('text', `State initialized as ${color('variable', input.state)}`))
-	gsi.setStateInstance(input)
-}
+export default GameStateInstance

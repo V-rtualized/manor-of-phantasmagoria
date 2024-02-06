@@ -1,11 +1,29 @@
 import { AttachmentBuilder, ChannelType, Client, Collection, EmbedBuilder, Guild, GuildMember, GuildTextBasedChannel, Snowflake } from 'discord.js'
 import { Channels, Role } from '../schemas/discord'
 
-const Discord = {
-	getGuild: async (client: Client): Promise<Guild> => client.guilds.fetch(process.env.GUILD_ID),
-	getMembers: async (client: Client): Promise<Collection<Snowflake, GuildMember>> => await (await Discord.getGuild(client)).members.fetch(),
-	getMembersByRole: async (client: Client, role: Role): Promise<GuildMember[]> => {
-		const members = await Discord.getMembers(client)
+class Discord {
+
+	_client: Client | null
+
+	constructor() {
+		this._client = null
+	}
+
+	set client(client: Client) {
+		this._client = client
+	}
+
+	get client(): Client {
+		if (this._client === null) throw new Error('Client not initialized (DiscordInstance)')
+		return this._client
+	}
+
+	getGuild = async (): Promise<Guild> => this.client.guilds.fetch(process.env.GUILD_ID)
+
+	getMembers = async (): Promise<Collection<Snowflake, GuildMember>> => (await (await this.getGuild()).members.fetch()).filter((member) => member.id !== process.env.BOT_ID)
+
+	getMembersByRole = async (role: Role): Promise<GuildMember[]> => {
+		const members = await this.getMembers()
 
 		const roleMembers: GuildMember[] = []
 		for (const [, member] of members) {
@@ -17,10 +35,11 @@ const Discord = {
 		}
 
 		return roleMembers
-	},
-	createGameChannels: async (client: Client) => {
-		const guild = await Discord.getGuild(client)
-		const members = await Discord.getMembersByRole(client, 'ALIVE')
+	}
+
+	createGameChannels = async () => {
+		const guild = await this.getGuild()
+		const members = await this.getMembersByRole('ALIVE')
 
 		const personal = await guild.channels.create({
 			name: 'Personal',
@@ -121,10 +140,11 @@ const Discord = {
 				break
 			}
 		}
-	},
-	createGameRoles: async (client: Client) => {
-		const guild = await Discord.getGuild(client)
-		const members = await Discord.getMembersByRole(client, 'ALIVE')
+	}
+
+	createGameRoles = async () => {
+		const guild = await this.getGuild()
+		const members = await this.getMembersByRole('ALIVE')
 
 		for (const member of members) {
 			const role = await guild.roles.create({
@@ -133,9 +153,10 @@ const Discord = {
 			})
 			member.roles.add(role)
 		}
-	},
-	deleteAllMutableChannels: async (client: Client) => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	deleteAllMutableChannels = async () => {
+		const guild = await this.getGuild()
 		const channels = await guild.channels.fetch()
 
 		for (const [, channel] of channels) {
@@ -143,9 +164,10 @@ const Discord = {
 
 			channel?.delete('Resetting...').catch((err) => console.warn(err.message, ` (deleteAllMutableChannels: ${channel.name})`))
 		}
-	},
-	deleteAllMutableRoles: async (client: Client) => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	deleteAllMutableRoles = async () => {
+		const guild = await this.getGuild()
 		const roles = await guild.roles.fetch()
 
 		for (const [id, role] of roles) {
@@ -153,10 +175,11 @@ const Discord = {
 
 			role.delete('Resetting...').catch((err) => console.warn(err.message, ` (deleteAllMutableRoles: ${role.name})`))
 		}
-	},
-	getPlayersCollection: async (client: Client): Promise<Collection<Snowflake, 'ALIVE' | 'DEAD'>> => {
-		const aliveMembers = await Discord.getMembersByRole(client, 'ALIVE')
-		const deadMembers = await Discord.getMembersByRole(client, 'DEAD')
+	}
+
+	getPlayersCollection = async (): Promise<Collection<Snowflake, 'ALIVE' | 'DEAD'>> => {
+		const aliveMembers = await this.getMembersByRole('ALIVE')
+		const deadMembers = await this.getMembersByRole('DEAD')
 
 		const collection: Collection<Snowflake, 'ALIVE' | 'DEAD'> = new Collection<Snowflake, 'ALIVE' | 'DEAD'>()
 		for (const member of aliveMembers) {
@@ -166,9 +189,10 @@ const Discord = {
 			collection.set(member.user.id, 'DEAD')
 		}
 		return collection
-	},
-	updateGrandfatherClock: async (client: Client, state: string, timestamp: number, playerGroups: { status: string, players: string[] }[]): Promise<void> => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	updateGrandfatherClock = async (state: string, timestamp: number, playerGroups: { status: string, players: string[] }[]): Promise<void> => {
+		const guild = await this.getGuild()
 
 		const grandfather = await guild.channels.fetch(process.env.GRANDFATHER_CHANNEL)
 
@@ -199,21 +223,24 @@ const Discord = {
 		else {
 			await lastMessage.edit({ embeds: [embed], files: [image] })
 		}
-	},
-	getNamedRole: async (client: Client, id: Snowflake) => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	getNamedRole = async (id: Snowflake) => {
+		const guild = await this.getGuild()
 		const member = await guild.members.fetch(id)
 		return (await guild.roles.fetch()).filter((value) => value.name === member.user.username).at(0)
-	},
-	getVoiceChannelIdFromName: async (client: Client, name: string) => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	getVoiceChannelIdFromName = async (name: string) => {
+		const guild = await this.getGuild()
 		return (await guild.channels.fetch()).filter((value) => value?.type === ChannelType.GuildVoice && value?.name === name).at(0)
-	},
-	updateVoiceChannelPermissions: async (client: Client, userId: Snowflake, voiceChannelNames: string[]) => {
-		const guild = await Discord.getGuild(client)
+	}
+
+	updateVoiceChannelPermissions = async (userId: Snowflake, voiceChannelNames: string[]) => {
+		const guild = await this.getGuild()
 		const allVoiceChannels = (await guild.channels.fetch()).filter(v => v?.type === ChannelType.GuildVoice)
 		const allowedChannels = allVoiceChannels.filter((value) => value ? voiceChannelNames.includes(value.name) : false)
-		const role = await Discord.getNamedRole(client, userId)
+		const role = await this.getNamedRole(userId)
 
 		if (role === undefined) return
 
@@ -231,7 +258,9 @@ const Discord = {
 				vc.permissionOverwrites.delete(role)
 			}
 		}
-	},
+	}
 }
 
-export default Discord
+const DiscordInstance = new Discord()
+
+export default DiscordInstance
