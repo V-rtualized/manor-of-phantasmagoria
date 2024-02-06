@@ -12,13 +12,14 @@ const event : BotEvent = {
 		console.log(
 			color('text', `Logged in as ${color('variable', client.user?.tag)}`),
 		)
-		await Database.resetSchema()
 		Database.initSchema().then(() => console.log(color('text', 'Successfully connect to database'))).catch(console.error)
+		const oldState = await Database.getState()
 		initializeState({
 			players: await Discord.getPlayersCollection(client),
-			started: Math.round(Date.now() / 1000),
-			state: 'PREGAME',
+			started: oldState === null ? Math.round(Date.now() / 1000) : oldState.started,
+			state: oldState === null ? 'PREGAME' : oldState.state,
 		})
+		console.log(oldState)
 	},
 }
 

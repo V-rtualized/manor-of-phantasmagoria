@@ -1,6 +1,7 @@
 import { Client, Collection, Snowflake } from 'discord.js'
 import Discord from './Discord'
 import { color } from '../functions'
+import Database from './Database'
 
 export type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'
 
@@ -28,34 +29,35 @@ class GameState {
 		this._players = input.players
 	}
 
-	_setState = async (client: Client, newState: States, aliveMeaning: string, deadMeaning: string) => {
+	_setState = async (client: Client, newState: States, aliveMeaning: string, deadMeaning: string, save: boolean) => {
 		this._state = newState
 		this._started = unixEpochInSeconds()
 		Discord.updateGrandfatherClock(client, this._state, this._started, [
 			{ status: aliveMeaning, players: (await Discord.getMembersByRole(client, 'ALIVE')).map(m => m.displayName) },
 			{ status: deadMeaning, players: (await Discord.getMembersByRole(client, 'DEAD')).map(m => m.displayName) },
 		])
+		if (save) Database.setState({ state: this._state, started: this._started })
 	}
 
 	invite = async (client: Client) => {
-		await this._setState(client, 'INVITING', 'Players', 'Spectators')
+		await this._setState(client, 'INVITING', 'Players', 'Spectators', true)
 	}
 
 	start = async (client: Client) => {
-		await this._setState(client, 'STARTING', 'Players', 'Spectators')
+		await this._setState(client, 'STARTING', 'Players', 'Spectators', true)
 		await Discord.createGameRoles(client)
 		await Discord.createGameChannels(client)
-		await this._setState(client, 'DAY', 'Alive', 'Dead')
+		await this._setState(client, 'DAY', 'Alive', 'Dead', true)
 	}
 
 	end = async (client: Client) => {
-		await this._setState(client, 'ENDED', 'Winners', 'Losers')
+		await this._setState(client, 'ENDED', 'Winners', 'Losers', true)
 	}
 
 	reset = async (client: Client) => {
 		await Discord.deleteAllMutableChannels(client)
 		await Discord.deleteAllMutableRoles(client)
-		await this._setState(client, 'PREGAME', 'Players', 'Spectators')
+		await this._setState(client, 'PREGAME', 'Players', 'Spectators', true)
 	}
 
 	get state() {

@@ -2,14 +2,21 @@ import { GuildMember, Snowflake } from 'discord.js'
 import { Inventory, Player } from '../schemas/database'
 import { Pool, PoolClient, PoolConfig } from 'pg'
 import { gameCharacterDataFromName } from '../characters'
+import { States } from './GameState'
 
 export type DBPlayer = {
   id: Snowflake,
+	alive: boolean,
   room: string,
   location: string,
   inventory: number,
   character: string,
 	characterData: string,
+}
+
+export type DBGameState = {
+  state: States,
+	started: number
 }
 
 const poolConfig: PoolConfig = {
@@ -51,21 +58,45 @@ const Database = {
 		usePool(async (client: PoolClient) => {
 			await client.query(`
 				INSERT INTO Player (id, room, location, inventory, character, characterData)
-				VALUES ('${player.id}', '${player.room}', '${player.location}', ${inventoryToBits(player.inventory)}, '${player.character.name}', '${player.characterData}');
+				VALUES ('${player.id}', '${player.room}', '${player.location}', ${inventoryToBits(player.inventory)}, '${player.character.name}', '${player.characterData}')
+				ON CONFLICT (id)
+				DO UPDATE SET room = '${player.room}', location = '${player.location}', inventory = ${inventoryToBits(player.inventory)}, character = '${player.character.name}', characterData = '${player.characterData}';
 			`)
 		})
 	},
 	getPlayer: async (id: Snowflake): Promise<Player> => {
-		const player: DBPlayer = await usePool(async (client: PoolClient) => client.query(`
+		const player: DBPlayer = await usePool(async (client: PoolClient) => (await client.query(`
 				SELECT * FROM Player
 				WHERE id = '${id}';
-			`))
+			`)).rows[0])
 
 		const character = gameCharacterDataFromName(player.character)
 
 		if (character === undefined) throw new Error('Player has undefined character')
 
 		return { ...player, inventory: bitsToInventory(player.inventory), character }
+	},
+	setState: async (state: DBGameState) => {
+		usePool(async (client: PoolClient) => {
+			await client.query(`
+				INSERT INTO State (version, stateName, started)
+				VALUES (0.1, '${state.state}', ${state.started})
+				ON CONFLICT (version)
+				DO UPDATE SET stateName = '${state.state}', started = ${state.started};
+			`)
+		})
+	},
+	getState: async (): Promise<DBGameState | null> => {
+		const gameState: DBGameState | undefined = await usePool(async (client: PoolClient) => (await client.query(`
+				SELECT * FROM State
+				WHERE version = '0.1';
+			`)).rows[0])
+
+		if (gameState === undefined) {
+			return null
+		}
+
+		return gameState
 	},
 	resetSchema: async () => {
 		usePool(async (client: PoolClient) => {
@@ -89,6 +120,7 @@ const Database = {
 			await client.query(`
 				CREATE TABLE IF NOT EXISTS Player (
 					id VARCHAR(255) PRIMARY KEY,
+					alive BOOLEAN,
 					room VARCHAR(255),
 					location VARCHAR(255),
 					inventory BIT(3),
@@ -99,7 +131,7 @@ const Database = {
 			await client.query(`
 				CREATE TABLE IF NOT EXISTS State (
 					version FLOAT PRIMARY KEY,
-					state VARCHAR(255),
+					stateName VARCHAR(255),
 					started INT
 				);
 			`)
