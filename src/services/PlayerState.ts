@@ -15,23 +15,14 @@ class PlayerState {
 	_players: Collection<Snowflake, Player> = new Collection<Snowflake, Player>()
 	_status: Collection<Snowflake, PlayerStatus> = new Collection<Snowflake, PlayerStatus>()
 
-	constructor() {
-		this.updatePlayers()
-		console.log(color('text', `PlayerState restored with ${color('variable', this._players.size)} players`))
-	}
-
-	updatePlayers = async () => {
+	restore = async () => {
 		const members = await Discord.getMembers()
 
 		for (const [id, member] of members) {
 			if (this._players.get(id) === undefined) {
-				try {
-					const player = await Database.getPlayer(id)
-					this._players.set(id, player)
-				}
-				catch (err) {
-					console.error('PlayerState.updatePlayers', err)
-				}
+				const player = await Database.getPlayer(id)
+				if (player === null) continue
+				this._players.set(id, player)
 				const role = member.roles.cache.find((r) => [process.env.ALIVE_ROLE, process.env.DEAD_ROLE].includes(r.id))
 				if (role === undefined) {
 					member.roles.add(process.env.DEAD_ROLE)
@@ -45,6 +36,8 @@ class PlayerState {
 				}
 			}
 		}
+
+		console.log(color('text', `PlayerState restored with ${color('variable', this._players.size)} players`))
 	}
 
 	getPlayersByStatus = (status: PlayerStatus): Player[] => {

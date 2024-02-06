@@ -3,6 +3,7 @@ import { Inventory, Player } from '../schemas/database'
 import { Pool, PoolClient, PoolConfig } from 'pg'
 import { gameCharacterDataFromName } from '../characters'
 import { States } from './GameState'
+import { color } from '../functions'
 
 export type DBPlayer = {
   id: Snowflake,
@@ -64,17 +65,19 @@ const Database = {
 			`)
 		})
 	},
-	getPlayer: async (id: Snowflake): Promise<Player> => {
+	getPlayer: async (id: Snowflake): Promise<Player | null> => {
 		const player: DBPlayer = await usePool(async (client: PoolClient) => (await client.query(`
 				SELECT * FROM Player
 				WHERE id = '${id}';
 			`)).rows[0])
 
+		if (player === undefined) return null
+
 		const character = gameCharacterDataFromName(player.character)
 
 		if (character === undefined) throw new Error('Player has undefined character')
 
-		return { ...player, inventory: bitsToInventory(player.inventory), character }
+		return { ...player, inventory: bitsToInventory(player.inventory), character: character }
 	},
 	setState: async (state: DBGameState) => {
 		usePool(async (client: PoolClient) => {
@@ -87,7 +90,7 @@ const Database = {
 		})
 	},
 	getState: async (): Promise<DBGameState | null> => {
-		const gameState: DBGameState | undefined = await usePool(async (client: PoolClient) => (await client.query(`
+		const gameState: { statename: States, started: number } | undefined = await usePool(async (client: PoolClient) => (await client.query(`
 				SELECT * FROM State
 				WHERE version = '0.1';
 			`)).rows[0])
@@ -96,7 +99,7 @@ const Database = {
 			return null
 		}
 
-		return gameState
+		return { ...gameState, state: gameState.statename }
 	},
 	resetSchema: async () => {
 		usePool(async (client: PoolClient) => {
@@ -136,6 +139,7 @@ const Database = {
 				);
 			`)
 		})
+		console.log(color('text', 'Successfully connect to database'))
 	},
 	membersToPlayers: async (members: GuildMember[]): Promise<Player[]> => {
 		const players: Player[] = []
