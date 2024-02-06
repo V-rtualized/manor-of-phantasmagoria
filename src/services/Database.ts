@@ -74,6 +74,16 @@ const Database = {
 			`)
 		})
 	},
+	resetDB: async () => {
+		usePool(async (client: PoolClient) => {
+			await client.query(`
+				DROP TABLE Player;
+			`)
+			await client.query(`
+				DROP TABLE State;
+			`)
+		})
+	},
 	initSchema: async () => {
 		usePool(async (client: PoolClient) => {
 			await client.query(`
