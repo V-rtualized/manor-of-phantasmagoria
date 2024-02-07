@@ -12,6 +12,21 @@ import Vigilante, { VigilanteData } from './Vigilante'
 export const CharacterList: GameCharacterData[] = [ButlerData, ClairvoyantData, CourtesanData, CuirasseData, DetectiveData, MasterData, StewardData, VigilanteData]
 const CharacterClassList: { name: string, description: EmbedBuilder, image: AttachmentBuilder }[] = [Butler, Clairvoyant, Courtesan, Cuirasse, Detective, Master, Steward, Vigilante]
 
-export const gameCharacterDataFromName = (name: string): GameCharacterData | undefined => CharacterList.find(gc => gc.name === name)
-export const gameCharacterDescriptionFromName = (name: string): EmbedBuilder | undefined => CharacterClassList.find(gc => gc.name === name)?.description
-export const gameCharacterImageFromName = (name: string): AttachmentBuilder | undefined => CharacterClassList.find(gc => gc.name === name)?.image
+export const gameCharacterDataFromName = (name: string): GameCharacterData | null => {
+	const character = CharacterList.find(gc => gc.name === name)
+	if (character === undefined) return null
+	return character
+}
+
+export const gameCharacterDescriptionFromName = (name: string): EmbedBuilder | null => {
+	const description = CharacterClassList.find(gc => gc.name === name)?.description
+	if (description === undefined) return null
+	return description
+}
+
+export const gameCharacterImageFromName = (name: string): AttachmentBuilder | null => {
+	const image = CharacterClassList.find(gc => gc.name === name)?.image
+	if (image === undefined) return null
+	return image
+}
+

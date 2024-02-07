@@ -41,7 +41,7 @@ class GameState {
 			{ status: aliveMeaning, players: (await Discord.getMembersByRole('ALIVE')).map(m => m.displayName) },
 			{ status: deadMeaning, players: (await Discord.getMembersByRole('DEAD')).map(m => m.displayName) },
 		])
-		if (save) Database.setState({ state: this._state, started: this._started })
+		if (save) Database.setState({ name: this._state, started: this._started })
 	}
 
 	invite = async () => {

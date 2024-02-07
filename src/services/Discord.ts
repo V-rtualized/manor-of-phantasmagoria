@@ -259,6 +259,8 @@ class Discord {
 			}
 		}
 	}
+
+	getMember = async (id: Snowflake) => (await this.getGuild()).members.fetch(id)
 }
 
 const DiscordInstance = new Discord()

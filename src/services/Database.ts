@@ -1,24 +1,21 @@
-import { GuildMember, Snowflake } from 'discord.js'
-import { Inventory, Player } from '../schemas/database'
-import { Pool, PoolClient, PoolConfig } from 'pg'
-import { gameCharacterDataFromName } from '../characters'
+import { promises as fs } from 'fs'
+import path from 'path'
+import { Pool, PoolConfig } from 'pg'
 import { States } from './GameState'
+import {
+	ColumnType,
+	FileMigrationProvider,
+	Insertable,
+	Kysely,
+	Migrator,
+	NO_MIGRATIONS,
+	PostgresDialect,
+	Updateable,
+} from 'kysely'
 import { color } from '../functions'
+import { PlayerStatus } from './PlayerState'
 
-export type DBPlayer = {
-  id: Snowflake,
-	alive: boolean,
-  room: string,
-  location: string,
-  inventory: number,
-  character: string,
-	characterData: string,
-}
-
-export type DBGameState = {
-  state: States,
-	started: number
-}
+const VERSION = 0.1
 
 const poolConfig: PoolConfig = {
 	host: 'db',
@@ -27,147 +24,223 @@ const poolConfig: PoolConfig = {
 	password: process.env.POSTGRES_PASSWORD,
 }
 
-const bitsToInventory = (bits: number): Inventory => {
-	const bitStr = bits.toString()
-	return {
-		master: bitStr.at(0) === '1',
-		servant: bitStr.at(1) === '1',
-		library: bitStr.at(2) === '1',
-	}
+type DatabaseSchema = {
+  player: PlayerTable
+  state: StateTable
+  location: LocationTable
+  inventory: InventoryTable
 }
 
-// eslint-disable-next-line no-unused-vars
-const usePool = async (fn: (client: PoolClient) => Promise<any> | any) => {
-	const pool = new Pool(poolConfig)
-	const client = await pool.connect()
-	let returnValue: any = undefined
-	try {
-		returnValue = await fn(client)
-	}
-	catch (err) {
-		client.release()
-		throw err
-	}
-	client.release()
-	return returnValue
+export interface PlayerTable {
+  id: ColumnType<string, string, never>
+	is_alive: ColumnType<boolean, boolean | undefined, boolean>
+  starting_room: string | undefined
+  current_location: string | undefined
+  inventory: number | undefined
+  character: string | undefined
+	action: string | undefined
 }
 
-const Database = {
-	setPlayer: async (player: Player) => {
-		const inventoryToBits = (inv: Inventory) => `${inv.master ? '1' : '0'}${inv.servant ? '1' : '0'}${inv.library ? '1' : '0'}`
+type PlayerUpdate = Updateable<PlayerTable>
 
-		usePool(async (client: PoolClient) => {
-			await client.query(`
-				INSERT INTO Player (id, room, location, inventory, character, characterData)
-				VALUES ('${player.id}', '${player.room}', '${player.location}', ${inventoryToBits(player.inventory)}, '${player.character.name}', '${player.characterData}')
-				ON CONFLICT (id)
-				DO UPDATE SET room = '${player.room}', location = '${player.location}', inventory = ${inventoryToBits(player.inventory)}, character = '${player.character.name}', characterData = '${player.characterData}';
-			`)
+export interface StateTable {
+  version: ColumnType<number, number, never>
+  name: States
+	started: number
+}
+
+type SetState = {
+	name: States
+	started: number
+}
+
+export interface LocationTable {
+  name: ColumnType<string, string, never>
+  to: string
+  private: boolean
+  key: string | undefined
+}
+
+type NewLocation = Insertable<LocationTable>
+type LocationUpdate = Updateable<LocationTable>
+
+export interface InventoryTable {
+  id: ColumnType<number, never, never>
+  keyM: boolean
+  keyS: boolean
+  keyL: boolean
+}
+
+type NewInventory = Insertable<InventoryTable>
+
+const pool = new Pool(poolConfig)
+const dialect = new PostgresDialect({
+	pool,
+})
+
+class Database {
+	db: Kysely<DatabaseSchema>
+
+	constructor() {
+		this.db = new Kysely<DatabaseSchema>({
+			dialect,
 		})
-	},
-	getPlayer: async (id: Snowflake): Promise<Player | null> => {
-		const player: DBPlayer = await usePool(async (client: PoolClient) => (await client.query(`
-				SELECT * FROM Player
-				WHERE id = '${id}';
-			`)).rows[0])
+	}
 
-		if (player === undefined) return null
-
-		const character = gameCharacterDataFromName(player.character)
-
-		if (character === undefined) throw new Error('Player has undefined character')
-
-		return { ...player, inventory: bitsToInventory(player.inventory), character: character }
-	},
-	setState: async (state: DBGameState) => {
-		usePool(async (client: PoolClient) => {
-			await client.query(`
-				INSERT INTO State (version, stateName, started)
-				VALUES (0.1, '${state.state}', ${state.started})
-				ON CONFLICT (version)
-				DO UPDATE SET stateName = '${state.state}', started = ${state.started};
-			`)
+	migrate = async () => {
+		const migrator = new Migrator({
+			db: this.db,
+			provider: new FileMigrationProvider({ fs, path, migrationFolder: path.join(__dirname, '../migrations') }),
+			allowUnorderedMigrations: true,
 		})
-	},
-	getState: async (): Promise<DBGameState | null> => {
-		const gameState: { statename: States, started: number } | undefined = await usePool(async (client: PoolClient) => (await client.query(`
-				SELECT * FROM State
-				WHERE version = '0.1';
-			`)).rows[0])
+		const { error, results } = await migrator.migrateToLatest()
 
-		if (gameState === undefined) {
-			return null
-		}
-
-		return { ...gameState, state: gameState.statename }
-	},
-	resetSchema: async () => {
-		usePool(async (client: PoolClient) => {
-			await client.query(`
-				DROP TABLE Player;
-			`)
-		})
-	},
-	resetDB: async () => {
-		usePool(async (client: PoolClient) => {
-			await client.query(`
-				DROP TABLE Player;
-			`)
-			await client.query(`
-				DROP TABLE State;
-			`)
-		})
-	},
-	initSchema: async () => {
-		usePool(async (client: PoolClient) => {
-			await client.query(`
-				CREATE TABLE IF NOT EXISTS Player (
-					id VARCHAR(255) PRIMARY KEY,
-					alive BOOLEAN,
-					room VARCHAR(255),
-					location VARCHAR(255),
-					inventory BIT(3),
-					character VARCHAR(255),
-					characterData VARCHAR(255)
-				);
-			`)
-			await client.query(`
-				CREATE TABLE IF NOT EXISTS State (
-					version FLOAT PRIMARY KEY,
-					stateName VARCHAR(255),
-					started INT
-				);
-			`)
-		})
-		console.log(color('text', 'Successfully connect to database'))
-	},
-	membersToPlayers: async (members: GuildMember[]): Promise<Player[]> => {
-		const players: Player[] = []
-
-		usePool(async (client: PoolClient) => {
-			for (const member of members) {
-				const query = {
-					text: 'SELECT * FROM Player WHERE id = $1',
-					values: [member.user.id],
-				}
-
-				const result: { rows: DBPlayer[] } = await client.query(query)
-
-				if (result.rows.length > 0) {
-					const gameCharacter = gameCharacterDataFromName(result.rows[0].character)
-					if (gameCharacter === undefined) {
-						throw new Error('Game Character not found')
-					}
-					const player: Player = { ...result.rows[0], inventory: bitsToInventory(result.rows[0].inventory), character: gameCharacter }
-					players.push(player)
-				}
+		results?.forEach((it) => {
+			if (it.status === 'Success') {
+				console.log(color('text', `Migration ${color('variable', it.migrationName)} was executed successfully`))
+			}
+			else if (it.status === 'Error') {
+				console.error(`Failed to execute migration "${it.migrationName}"`)
 			}
 		})
 
-		return players
-	},
+		if (error) {
+			console.error('Failed to migrate')
+			console.error(error)
+			process.exit(1)
+		}
+	}
+	reset = async () => {
+		const migrator = new Migrator({
+			db: this.db,
+			provider: new FileMigrationProvider({ fs, path, migrationFolder: path.join(__dirname, '../migrations') }),
+			allowUnorderedMigrations: true,
+		})
+		const { error, results } = await migrator.migrateTo(NO_MIGRATIONS)
+
+		results?.forEach((it) => {
+			if (it.status === 'Success') {
+				console.log(color('text', `Migration ${color('variable', it.migrationName)} was executed successfully`))
+			}
+			else if (it.status === 'Error') {
+				console.error(`Failed to execute migration "${it.migrationName}"`)
+			}
+		})
+
+		if (error) {
+			console.error('Failed to migrate')
+			console.error(error)
+			process.exit(1)
+		}
+
+		await this.migrate()
+	}
+	setPlayer = async (id: string, player: PlayerUpdate) => {
+		try {
+			await this.db.insertInto('player')
+				.values({ ...player, id })
+				.onConflict((oc) => oc.column('id').doUpdateSet(player))
+				.execute()
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	getPlayer = async (id: string) => {
+		try {
+			return await this.db.selectFrom('player')
+				.selectAll()
+				.where('id', '=', id)
+				.executeTakeFirst()
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	setPlayerStatus = async (id: string, status: PlayerStatus) => {
+		await this.setPlayer(id, { is_alive: status === 'ALIVE' })
+	}
+	/**
+	 * @returns 'ALIVE' or 'DEAD', also returns 'DEAD' if player is not found
+	 */
+	getPlayerStatus = async (id: string): Promise<PlayerStatus> => (await this.getPlayer(id))?.is_alive ? 'ALIVE' : 'DEAD'
+	setInventory = async (player_id: string, inv: NewInventory) => {
+		try {
+			const inv_id = (await this.db.selectFrom('player')
+				.select('inventory')
+				.where('id', '=', player_id)
+				.executeTakeFirst())?.inventory
+			if (inv_id === undefined) {
+				const new_inv_id = (await this.db.insertInto('inventory')
+					.values(inv)
+					.returning('id')
+					.executeTakeFirst())?.id
+				await this.setPlayer(player_id, { inventory: new_inv_id })
+			}
+			else {
+				(await this.db.updateTable('inventory')
+					.set(inv)
+					.executeTakeFirst())
+			}
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	getInventory = async (player_id: string) => {
+		try {
+			const inv_id = (await this.db.selectFrom('player')
+				.select('inventory')
+				.where('id', '=', player_id)
+				.executeTakeFirst())?.inventory
+			if (inv_id === undefined) return undefined
+			return await this.db.selectFrom('inventory')
+				.selectAll()
+				.where('id', '=', inv_id)
+				.executeTakeFirst()
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	setLocation = async (name: string, location: LocationUpdate) => {
+		try {
+			const newLoc = { ...location, name }
+			if (newLoc.to === undefined) {
+				throw new Error('Cannot set location without "to" property')
+			}
+			await this.db.insertInto('location')
+				.values(newLoc as NewLocation)
+				.onConflict((oc) => oc.column('name').doUpdateSet(location))
+				.execute()
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	getLocation = async (name: string) => {
+		try {
+			return await this.db.selectFrom('location')
+				.selectAll()
+				.where('name', '=', name)
+				.executeTakeFirst()
+		}
+		catch (err) {
+			console.error(err)
+		}
+	}
+	setState = async (state: SetState) => {
+		await this.db.insertInto('state')
+			.values({ ...state, version: VERSION })
+			.onConflict((oc) => oc.column('version').doUpdateSet(state))
+			.execute()
+	}
+	getState = async () => await this.db.selectFrom('state')
+		.selectAll()
+		.where('version', '=', VERSION)
+		.executeTakeFirst()
 }
 
-Database.initSchema()
+const DatabaseInstance = new Database()
 
-export default Database
+export default DatabaseInstance

@@ -3,7 +3,7 @@ import { BotEvent } from '../types'
 import { color } from '../functions'
 import GameState from '../services/GameState'
 import Discord from '../services/Discord'
-import Database from '../services/Database'
+import Database from '../services/Database_OLD'
 import PlayerState from '../services/PlayerState'
 
 /**
