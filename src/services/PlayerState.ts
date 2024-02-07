@@ -102,6 +102,8 @@ class PlayerState {
 
 		return returnPlayers
 	}
+
+	isAlive = (id: Snowflake) => this.getStatus(id)
 }
 
 const PlayerStateInstance = new PlayerState()

@@ -26,7 +26,7 @@ const command : SlashCommand = {
 
 			const embed = gameCharacterDescriptionFromName(CharacterData.name)
 
-			if (embed === undefined) {
+			if (embed === null) {
 				throw new Error('Character description undefined')
 			}
 
@@ -46,7 +46,7 @@ const replyCharacterList = async (interaction: ChatInputCommandInteraction<Cache
 		?.setTimestamp()
 		.setFooter({ text: 'The functionality of this message expires in 5 minutes' })
 
-	if (image === undefined || embed === undefined) {
+	if (image === null || embed === undefined) {
 		throw new Error('Character description undefined')
 	}
 

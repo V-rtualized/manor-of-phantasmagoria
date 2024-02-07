@@ -3,7 +3,7 @@ import { BotEvent } from '../types'
 import { color } from '../functions'
 import GameState from '../services/GameState'
 import Discord from '../services/Discord'
-import Database from '../services/Database_OLD'
+import Database from '../services/Database'
 import PlayerState from '../services/PlayerState'
 
 /**
@@ -27,15 +27,14 @@ const event : BotEvent = {
 
 		// Database Init
 		try {
-			await Database.initSchema()
+			await Database.migrate()
 		}
 		catch (err) {
 			console.error('readyEvent', err)
 		}
 
 		// GameState Init
-		const oldState = await Database.getState()
-		if (oldState !== null) GameState.restore(oldState.state, oldState.started)
+		await GameState.restore()
 
 		// PlayerState Init
 		await PlayerState.restore()

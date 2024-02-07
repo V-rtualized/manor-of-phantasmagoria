@@ -20,9 +20,11 @@ class GameState {
 		this._started = unixEpochInSeconds()
 	}
 
-	restore = (state: States, started: number) => {
-		this._state = state
-		this._started = started
+	restore = async () => {
+		const state = await Database.getState()
+		if (state === undefined) return
+		this._state = state.name
+		this._started = state.started
 		console.log(color('text', `GameState restored to ${color('variable', state)}`))
 	}
 

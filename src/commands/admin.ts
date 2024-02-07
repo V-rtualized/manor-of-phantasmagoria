@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, SlashCommandStringOption, ChatInputCommandInteraction } from 'discord.js'
 import { SlashCommand } from '../types'
-import { getStateInstance } from '../services/GameState'
-import Database from '../services/Database_OLD'
+import GameState from '../services/GameState'
+import Database from '../services/Database'
 
 const STATE = {
 	RESET: 'RESET',
@@ -13,29 +13,21 @@ const STATE = {
 const stateSubcommand = async (interaction: ChatInputCommandInteraction) => {
 	const state = interaction.options.get('state')
 
-	const currState = getStateInstance()
-
-	if (currState === null) {
-		interaction.reply({ ephemeral: true, content: 'Error: State not initialized' })
-		console.error('Error: State not initialized')
-		return
-	}
-
 	interaction.reply({
 		ephemeral: true,
 		content: 'Updating State...',
 	})
 	if (state?.value === STATE.RESET) {
-		await currState.reset(interaction.client)
+		await GameState.reset()
 	}
 	else if (state?.value === STATE.INVITE) {
-		await currState.invite(interaction.client)
+		await GameState.invite()
 	}
 	else if (state?.value === STATE.F_START) {
-		await currState.start(interaction.client)
+		await GameState.start()
 	}
 	else if (state?.value === STATE.F_END) {
-		await currState.end(interaction.client)
+		await GameState.end()
 	}
 }
 
@@ -44,8 +36,7 @@ const resetdatabaseSubcommand = async (interaction: ChatInputCommandInteraction)
 		ephemeral: true,
 		content: 'Resetting Database...',
 	})
-	await Database.resetDB()
-	await Database.initSchema()
+	await Database.reset()
 }
 
 const command : SlashCommand = {
