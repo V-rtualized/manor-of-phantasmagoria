@@ -11,7 +11,9 @@ const event : BotEvent = {
 			if (command.cooldown && cooldown) {
 				if (Date.now() < cooldown) {
 					interaction.reply(`You have to wait ${Math.floor(Math.abs(Date.now() - cooldown) / 1000)} second(s) to use this command again.`)
-					setTimeout(() => interaction.deleteReply(), 5000)
+					setTimeout(() => {
+						interaction.deleteReply()
+					}, 5000)
 					return
 				}
 				interaction.client.cooldowns.set(`${interaction.commandName}-${interaction.user.username}`, Date.now() + command.cooldown * 1000)
@@ -23,34 +25,6 @@ const event : BotEvent = {
 				interaction.client.cooldowns.set(`${interaction.commandName}-${interaction.user.username}`, Date.now() + command.cooldown * 1000)
 			}
 			command.execute(interaction)
-		}
-		else if (interaction.isAutocomplete()) {
-			const command = interaction.client.commands.get(interaction.commandName)
-			if (!command) {
-				console.error(`No command matching ${interaction.commandName} was found.`)
-				return
-			}
-			try {
-				if (!command.autocomplete) return
-				command.autocomplete(interaction)
-			}
-			catch (error) {
-				console.error(error)
-			}
-		}
-		else if (interaction.isModalSubmit()) {
-			const command = interaction.client.commands.get(interaction.customId)
-			if (!command) {
-				console.error(`No command matching ${interaction.customId} was found.`)
-				return
-			}
-			try {
-				if (!command.modal) return
-				command.modal(interaction)
-			}
-			catch (error) {
-				console.error(error)
-			}
 		}
 	},
 }

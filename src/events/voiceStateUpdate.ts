@@ -5,7 +5,7 @@ import { BotEvent } from '../types'
 
 const event: BotEvent = {
 	name: Events.VoiceStateUpdate,
-	execute: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
+	execute: (client: Client, oldState: VoiceState, newState: VoiceState) => {
 		const memberId = newState?.member?.id
 
 		if (memberId === undefined) throw new Error('Member not defined (voiceStateUpdate)')

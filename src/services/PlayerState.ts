@@ -56,7 +56,7 @@ class PlayerState {
 				if (player === undefined) continue
 				const gc = gameCharacterDataFromName(player.character ? player.character : '')
 				const inv = await Database.getInventory(id)
-				this.setPlayer(id, { ...player, inventory: inv, character: gc ? gc : undefined })
+				this.setPlayer(id, { ...player, inventory: inv, character: gc ?? undefined })
 				const status = await Database.getPlayerStatus(id)
 				if (status === null) continue
 				this.setStatus(id, status)

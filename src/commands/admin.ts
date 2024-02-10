@@ -70,13 +70,13 @@ const command : SlashCommand = {
 			.setName('resetdatabase')
 			.setDescription('Removes all data and tables from the database'),
 		),
-	execute: async interaction => {
+	execute: interaction => {
 		switch (interaction.options.getSubcommand()) {
 		case 'state':
-			await stateSubcommand(interaction)
+			stateSubcommand(interaction).then()
 			break
 		case 'resetdatabase':
-			await resetdatabaseSubcommand(interaction)
+			resetdatabaseSubcommand(interaction).then()
 			break
 		}
 	},

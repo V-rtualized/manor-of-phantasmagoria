@@ -26,7 +26,7 @@ const command : SlashCommand = {
 			return
 		}
 
-		if (target === null || target.user === undefined) {
+		if (target?.user === undefined) {
 			interaction.reply({ content: 'Invalid target' })
 			return
 		}

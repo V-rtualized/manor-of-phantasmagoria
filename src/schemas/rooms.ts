@@ -2,7 +2,7 @@ export type Room = {
   name: string,
   to: string[],
   key?: string,
-  private?: boolean | false
+  private?: boolean
 }
 
 export const Rooms: Room[] = [

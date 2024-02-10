@@ -13,14 +13,14 @@ const command : SlashCommand = {
 				.addChoices(
 					...CharacterList.map(c => ({ name: c.name, value: c.name })),
 				)),
-	execute: async interaction => {
+	execute: interaction => {
 		const characterName = interaction.options.getString('character')
 
 		if (characterName) {
 			const CharacterData = CharacterList.find(c => c.name === characterName)
 
 			if (CharacterData === undefined) {
-				await interaction.reply({ content: 'An unknown error occurred' })
+				interaction.reply({ content: 'An unknown error occurred' }).then()
 				return
 			}
 
@@ -30,12 +30,11 @@ const command : SlashCommand = {
 				throw new Error('Character description undefined')
 			}
 
-			await interaction.reply({ embeds: [embed] })
+			interaction.reply({ embeds: [embed] }).then()
 			return
 		}
 
-		await replyCharacterList(interaction, 0, true)
-
+		replyCharacterList(interaction, 0, true).then()
 	},
 }
 

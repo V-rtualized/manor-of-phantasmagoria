@@ -27,6 +27,8 @@ export const checkPermissions = (member: GuildMember, permissions: Array<Permiss
 
 export const sendTimedMessage = (message: string, channel: TextChannel, duration: number) => {
 	channel.send(message)
-		.then(m => setTimeout(async () => (await channel.messages.fetch(m)).delete(), duration))
-	return
+		.then(m =>
+			setTimeout(() => {
+				channel.messages.fetch(m).then(res => res.delete())
+			}, duration))
 }

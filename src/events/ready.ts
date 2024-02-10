@@ -6,6 +6,28 @@ import Discord from '../services/Discord'
 import Database from '../services/Database'
 import PlayerState from '../services/PlayerState'
 
+const executeAsync = async (client: Client) => {
+	// Discord Init
+	Discord.client = client
+
+	// Database Init
+	try {
+		await Database.migrate()
+	}
+	catch (err) {
+		console.error('readyEvent', err)
+	}
+
+	// GameState Init
+	await GameState.restore()
+
+	// PlayerState Init
+	await PlayerState.restore()
+	console.log(
+		color('variable', 'INITIALIZATION DONE'),
+	)
+}
+
 /**
  * IMPORTANT:
  * This function initializes the various services but these services can depend on eachother
@@ -17,30 +39,12 @@ import PlayerState from '../services/PlayerState'
 const event : BotEvent = {
 	name: Events.ClientReady,
 	once: true,
-	execute: async (client : Client) => {
+	execute:  (client: Client) => {
 		console.log(
 			color('text', `Logged in as ${color('variable', client.user?.tag)}`),
 		)
 
-		// Discord Init
-		Discord.client = client
-
-		// Database Init
-		try {
-			await Database.migrate()
-		}
-		catch (err) {
-			console.error('readyEvent', err)
-		}
-
-		// GameState Init
-		await GameState.restore()
-
-		// PlayerState Init
-		await PlayerState.restore()
-		console.log(
-			color('variable', 'INITIALIZATION DONE'),
-		)
+		executeAsync(client).then()
 	},
 }
 
