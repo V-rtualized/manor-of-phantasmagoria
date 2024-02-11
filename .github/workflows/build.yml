@@ -6,10 +6,9 @@ on:
  pull_request:
    types: [opened, synchronize, reopened]
 jobs:
-  build:
-    name: Build
+  sonarqube:
+    name: sonarqube
     runs-on: ubuntu-latest
-    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
