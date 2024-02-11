@@ -196,7 +196,7 @@ class Discord {
 
 		const grandfather = await guild.channels.fetch(process.env.GRANDFATHER_CHANNEL)
 
-		if (grandfather === null || !grandfather.isTextBased) {
+		if (!grandfather?.isTextBased) {
 			throw new Error('Cannot find grandfather channel')
 		}
 
