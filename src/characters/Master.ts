@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData } from './GameCharacter'
 
 export const MasterData: GameCharacterData = {
 	name: 'Master',
@@ -21,23 +21,11 @@ class Master extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(MasterData.color)
-			.setTitle(MasterData.name)
-			.addFields({
-				name: 'Team', value: MasterData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${MasterData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'All *Guests* are eliminated', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Choose someone to kill',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target, cannot target *Hosts*',
-			})
-			.setThumbnail('attachment://master.png')
+		return DescriptionBuilder(MasterData, {
+			winCondition: 'ELIM_GUESTS',
+			nightAbility: 'Choose someone to kill',
+			abilityConditions: new ConditionBuilder().custom('Cannot target *Hosts*'),
+		})
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData, Investigated } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData, Investigated } from './GameCharacter'
 
 export const ButlerData: GameCharacterData = {
 	name: 'Butler',
@@ -23,25 +23,12 @@ class Butler extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(ButlerData.color)
-			.setTitle(ButlerData.name)
-			.addFields({
-				name: 'Team', value: ButlerData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${ButlerData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'All *Guests* are eliminated', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Change the perceived role and visitors of someone else when they are observered by other characters',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target, cannot target *Hosts*',
-			}, {
-				name: 'Additional Information', value: 'Selects target, role, and visitors. If target is *Investigated* they will be shown as chosen role. If target is *Watched* they will be shown as visited by chosen visitor, as well as the *Butler*. Becomes the *Steward* if the *Master* dies',
-			})
-			.setThumbnail('attachment://butler.png')
+		return DescriptionBuilder(ButlerData, {
+			winCondition: 'ELIM_GUESTS',
+			nightAbility: 'Change the perceived role and visitors of someone else when they are observered by other characters',
+			abilityConditions: new ConditionBuilder().custom('Cannot target *Hosts*'),
+			additionalInformation: 'Selects target, role, and visitors. If target is *Investigated* they will be shown as chosen role. If target is *Watched* they will be shown as visited by chosen visitor, as well as the *Butler*. Becomes the *Steward* if the *Master* dies',
+		})
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

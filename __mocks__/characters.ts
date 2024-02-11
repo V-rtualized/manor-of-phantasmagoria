@@ -39,21 +39,19 @@ class Character3 {
 export const CharacterList = [CharacterData1, CharacterData2, CharacterData3]
 const CharacterClassList: { name: string, description: EmbedBuilder, image: AttachmentBuilder }[] = [Character1, Character2, Character3]
 
-export const gameCharacterDataFromName = (name: string) => {
-	const character = CharacterList.find(gc => gc.name === name)
-	if (character === undefined) return null
-	return character
+const findCharacterByName = (list: Array<any>, name: string) => {
+	const character = list.find(gc => gc.name === name)
+	return character === undefined ? null : character
 }
 
-export const gameCharacterDescriptionFromName = (name: string): EmbedBuilder | null => {
-	const description = CharacterClassList.find(gc => gc.name === name)?.description
-	if (description === undefined) return null
-	return description
+export const gameCharacterDataFromName = (name: string) => findCharacterByName(CharacterList, name)
+
+export const gameCharacterDescriptionFromName = (name: string) => {
+	const character = findCharacterByName(CharacterClassList, name)
+	return character ? character.description : null
 }
 
-export const gameCharacterImageFromName = (name: string): AttachmentBuilder | null => {
-	const image = CharacterClassList.find(gc => gc.name === name)?.image
-	if (image === undefined) return null
-	return image
+export const gameCharacterImageFromName = (name: string) => {
+	const character = findCharacterByName(CharacterClassList, name)
+	return character ? character.image : null
 }
-

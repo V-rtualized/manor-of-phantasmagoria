@@ -34,11 +34,5 @@
     },
     "overrides": {
         "discord-api-types": "0.37.20"
-    },
-    "jest": {
-        "automock": false,
-        "setupFiles": [
-          "./setupJestMock.ts"
-        ]
-      }
+    }
 }

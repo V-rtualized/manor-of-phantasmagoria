@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData } from './GameCharacter'
 
 export const DetectiveData: GameCharacterData = {
 	name: 'Detective',
@@ -21,25 +21,12 @@ class Detective extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(DetectiveData.color)
-			.setTitle(DetectiveData.name)
-			.addFields({
-				name: 'Team', value: DetectiveData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${DetectiveData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'All *Hosts* are eliminated', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Choose someone to *Investigate*',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target, cannot target themselves',
-			}, {
-				name: 'Additional Information', value: 'Will determine the role of their target based on the target\'s *Investigation Result*',
-			})
-			.setThumbnail('attachment://detective.png')
+		return DescriptionBuilder(DetectiveData, {
+			winCondition: 'ELIM_HOSTS',
+			nightAbility: 'Choose someone to *Investigate*',
+			abilityConditions: new ConditionBuilder(),
+			additionalInformation: 'Will determine the role of their target based on the target\'s *Investigation Result*',
+		})
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

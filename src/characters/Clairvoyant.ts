@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData } from './GameCharacter'
 
 export const ClairvoyantData: GameCharacterData = {
 	name: 'Clairvoyant',
@@ -21,25 +21,12 @@ class Clairvoyant extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(ClairvoyantData.color)
-			.setTitle(ClairvoyantData.name)
-			.addFields({
-				name: 'Team', value: ClairvoyantData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${ClairvoyantData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'All *Hosts* are eliminated', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Choose someone to *Watch*',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target',
-			}, {
-				name: 'Additional Information', value: 'Will determine every person that *visited* their target that night',
-			})
-			.setThumbnail('attachment://clairvoyant.png')
+		return DescriptionBuilder(ClairvoyantData, {
+			winCondition: 'ELIM_HOSTS',
+			nightAbility: 'Choose someone to *Watch*',
+			abilityConditions: new ConditionBuilder().canSelfTarget(),
+			additionalInformation: 'Will determine every person that *visited* their target that night',
+		})
 	}
 
 	selectAction = (interaction: ChatInputCommandInteraction): boolean => {

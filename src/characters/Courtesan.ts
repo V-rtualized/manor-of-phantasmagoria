@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData } from './GameCharacter'
 
 export const CourtesanData: GameCharacterData = {
 	name: 'Courtesan',
@@ -22,25 +22,12 @@ class Courtesan extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(CourtesanData.color)
-			.setTitle(CourtesanData.name)
-			.addFields({
-				name: 'Team', value: CourtesanData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${CourtesanData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'Survives until someone wins', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Choose someone to seduce and control, then choose a victim',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target, cannot target themselves',
-			}, {
-				name: 'Additional Information', value: 'The chosen target will use their night ability on the chosen victim, the chosen victim can be the Courtensan, the target will not be told they were seduced',
-			})
-			.setThumbnail('attachment://courtesan.png')
+		return DescriptionBuilder(CourtesanData, {
+			winCondition: 'SURVIVE',
+			nightAbility: 'Choose someone to seduce and control, then choose a victim',
+			abilityConditions: new ConditionBuilder(),
+			additionalInformation: 'The chosen target will use their night ability on the chosen victim, the chosen victim can be the Courtensan, the target will not be told they were seduced',
+		})
 	}
 
 	selectAction(interaction: ChatInputCommandInteraction): boolean {

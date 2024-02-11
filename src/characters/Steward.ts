@@ -1,5 +1,5 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, EmbedBuilder, Snowflake } from 'discord.js'
-import GameCharacter, { GameCharacterData } from './GameCharacter'
+import { AttachmentBuilder, ChatInputCommandInteraction, Snowflake } from 'discord.js'
+import GameCharacter, { ConditionBuilder, DescriptionBuilder, GameCharacterData } from './GameCharacter'
 
 export const StewardData: GameCharacterData = {
 	name: 'Steward',
@@ -21,25 +21,12 @@ class Steward extends GameCharacter {
 	}
 
 	static get description() {
-		return new EmbedBuilder()
-			.setColor(StewardData.color)
-			.setTitle(StewardData.name)
-			.addFields({
-				name: 'Team', value: StewardData.team, inline: true,
-			}, {
-				name: 'Investigation Result', value: `${StewardData.position} Role`, inline: true,
-			}, {
-				name: 'Win Condition', value: 'All *Guests* are eliminated', inline: true,
-			}, {
-				name: '\u200B', value: '\u200B',
-			}, {
-				name: 'Night Ability', value: 'Choose someone to kill',
-			}, {
-				name: 'Ability Conditions', value: 'Visits their target, cannot target *Hosts*',
-			}, {
-				name: 'Additional Information', value: 'This role is not given at the start of the game',
-			})
-			.setThumbnail('attachment://steward.png')
+		return DescriptionBuilder(StewardData, {
+			winCondition: 'ELIM_GUESTS',
+			nightAbility: 'Choose someone to kill',
+			abilityConditions: new ConditionBuilder().custom('Cannot target *Hosts*'),
+			additionalInformation: 'This role is not given at the start of the game',
+		})
 	}
 
 	canBeSelected = (): boolean => false
