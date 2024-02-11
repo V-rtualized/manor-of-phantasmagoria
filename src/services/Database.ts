@@ -97,7 +97,7 @@ class Database {
 
 		results?.forEach((it) => {
 			if (it.status === 'Success') {
-				console.log(color('text', `Migration ${color('variable', it.migrationName)} was executed successfully`))
+				console.log(color('primary', `Migration ${color('secondary', it.migrationName)} was executed successfully`))
 			}
 			else if (it.status === 'Error') {
 				console.error(`Failed to execute migration "${it.migrationName}"`)
@@ -120,7 +120,7 @@ class Database {
 
 		results?.forEach((it) => {
 			if (it.status === 'Success') {
-				console.log(color('text', `Migration ${color('variable', it.migrationName)} was executed successfully`))
+				console.log(color('primary', `Migration ${color('secondary', it.migrationName)} was executed successfully`))
 			}
 			else if (it.status === 'Error') {
 				console.error(`Failed to execute migration "${it.migrationName}"`)

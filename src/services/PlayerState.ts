@@ -63,7 +63,7 @@ class PlayerState {
 			}
 		}
 
-		console.log(color('text', `PlayerState restored with ${color('variable', this._players.size)} players`))
+		console.log(color('primary', `PlayerState restored with ${color('secondary', this._players.size)} players`))
 	}
 
 	collectPlayerStatus = async () => {
@@ -73,7 +73,7 @@ class PlayerState {
 			const role = member.roles.cache.find((r) => [process.env.ALIVE_ROLE, process.env.DEAD_ROLE].includes(r.id))
 			if (role === undefined) {
 				member.roles.add(process.env.DEAD_ROLE)
-					.then(() => console.log('PlayerState.collectPlayerStatus', color('text', `Found ${color('variable', member.displayName)} with empty status, assigned ${color('variable', 'DEAD')} role`)))
+					.then(() => console.log('PlayerState.collectPlayerStatus', color('primary', `Found ${color('secondary', member.displayName)} with empty status, assigned ${color('secondary', 'DEAD')} role`)))
 				this.setStatus(id, 'DEAD')
 			}
 			else if (role.id === process.env.DEAD_ROLE) {

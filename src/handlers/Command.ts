@@ -23,7 +23,7 @@ module.exports = (client : Client) => {
 		body: commands.map(command => command.toJSON()),
 	})
 		.then((data : any) => {
-			console.log(color('text', `Successfully loaded ${color('variable', data.length)} slash command(s)`))
+			console.log(color('primary', `Successfully loaded ${color('secondary', data.length)} slash command(s)`))
 		}).catch(e => {
 			console.log(e)
 		})

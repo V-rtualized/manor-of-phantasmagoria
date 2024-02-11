@@ -24,7 +24,7 @@ const executeAsync = async (client: Client) => {
 	// PlayerState Init
 	await PlayerState.restore()
 	console.log(
-		color('variable', 'INITIALIZATION DONE'),
+		color('secondary', 'INITIALIZATION DONE'),
 	)
 }
 
@@ -41,7 +41,7 @@ const event : BotEvent = {
 	once: true,
 	execute:  (client: Client) => {
 		console.log(
-			color('text', `Logged in as ${color('variable', client.user?.tag)}`),
+			color('primary', `Logged in as ${color('secondary', client.user?.tag)}`),
 		)
 
 		executeAsync(client).then()

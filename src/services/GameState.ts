@@ -25,7 +25,7 @@ class GameState {
 		if (state === undefined) return
 		this._state = state.name
 		this._started = state.started
-		console.log(color('text', `GameState restored to ${color('variable', state)}`))
+		console.log(color('primary', `GameState restored to ${color('secondary', state)}`))
 	}
 
 	get state() {

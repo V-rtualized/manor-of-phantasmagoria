@@ -14,6 +14,6 @@ module.exports = (client: Client) => {
 			client.once(event.name, (...args) => event.execute(client, ...args))
 			:
 			client.on(event.name, (...args) => event.execute(client, ...args))
-		console.log(color('text', `Successfully loaded event ${color('variable', event.name)}`))
+		console.log(color('primary', `Successfully loaded event ${color('secondary', event.name)}`))
 	})
 }
