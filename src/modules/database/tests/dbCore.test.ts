@@ -27,6 +27,10 @@ jest.mock('pg', () => ({
 }))
 
 describe('dbCore - enqueueOperation and processQueue', () => {
+	beforeEach(() => {
+		jest.clearAllMocks()
+	})
+
 	it('processes each operation exactly once', async () => {
 		const mockOperation = jest.fn().mockResolvedValue('Operation done')
 
@@ -60,6 +64,10 @@ describe('dbCore - enqueueOperation and processQueue', () => {
 })
 
 describe('dbCore - get', () => {
+	beforeEach(() => {
+		jest.clearAllMocks()
+	})
+
 	it('should retrieve data correctly', async () => {
 		const expectedResult = { id: 1, name: 'Test Player' }
 		const db = (await import('../dbCore')).db as any
@@ -103,6 +111,10 @@ describe('dbCore - get', () => {
 })
 
 describe('dbCore - set', () => {
+	beforeEach(() => {
+		jest.clearAllMocks()
+	})
+
 	it('inserts data correctly when no existing record is found', async () => {
 		const db = (await import('../dbCore')).db as any
 
