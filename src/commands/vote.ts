@@ -39,7 +39,7 @@ const command : SlashCommand = {
 			embeds: [
 				new EmbedBuilder()
 					.setDescription('Error: Not Implemented (vote)')
-					.setColor(getThemeColor('text')),
+					.setColor(getThemeColor('error')),
 			],
 		})
 	},

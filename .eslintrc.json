@@ -2,11 +2,13 @@
 	"extends": "eslint:recommended",
 	"parser": "@typescript-eslint/parser",
 	"plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+		"jest"
   ],
 	"env": {
 		"node": true,
-		"es6": true
+		"es6": true,
+    "jest": true
 	},
 	"parserOptions": {
 		"ecmaVersion": "latest",

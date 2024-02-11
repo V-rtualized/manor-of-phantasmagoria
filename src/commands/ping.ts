@@ -11,7 +11,7 @@ const command : SlashCommand = {
 			embeds: [
 				new EmbedBuilder()
 					.setDescription(`Pong! \n Ping: ${interaction.client.ws.ping}`)
-					.setColor(getThemeColor('text')),
+					.setColor(getThemeColor('primary')),
 			],
 		})
 	},

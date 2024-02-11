@@ -1,11 +1,11 @@
 import chalk from 'chalk'
 import { GuildMember, PermissionFlagsBits, PermissionResolvable, TextChannel } from 'discord.js'
 
-type colorType = 'text' | 'variable' | 'error'
+type colorType = 'primary' | 'secondary' | 'error'
 
 const themeColors = {
-	text: '#ff8e4d',
-	variable: '#ff624d',
+	primary: '#4036d1',
+	secondary: '#9727ff',
 	error: '#f5426c',
 }
 
