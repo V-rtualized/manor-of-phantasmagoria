@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 
-type colorType = 'primary' | 'secondary' | 'error'
+export type colorType = 'primary' | 'secondary' | 'error'
 
 const themeColors = {
 	primary: '#4036d1',

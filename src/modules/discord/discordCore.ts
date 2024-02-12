@@ -60,7 +60,6 @@ export const fetchRoles = async (): Promise<Role[]> => {
 export const fetchChannels = async (): Promise<NonThreadGuildBasedChannel[]> => {
 	const guild = await fetchGuild()
 	const channels = await guild.channels.fetch()
-	console.log(channels)
 	return collectionToValuesArray<NonThreadGuildBasedChannel>(channels.filter(isNotNull))
 }
 
