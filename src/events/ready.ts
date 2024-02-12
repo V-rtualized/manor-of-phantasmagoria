@@ -1,6 +1,6 @@
 import { Client, Events } from 'discord.js'
 import { BotEvent } from '../types'
-import { color } from '../functions'
+import { color } from '../utils/colorUtils'
 import GameState from '../services/GameState'
 import Discord from '../services/Discord'
 import Database from '../services/Database'

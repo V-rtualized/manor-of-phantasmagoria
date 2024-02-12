@@ -1,5 +1,5 @@
 import Discord from './Discord'
-import { color } from '../functions'
+import { color } from '../utils/colorUtils'
 import Database from './Database'
 
 export type States = 'PREGAME' | 'INVITING' | 'STARTING' | 'DAY' | 'NIGHT' | 'ENDED'

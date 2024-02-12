@@ -12,7 +12,7 @@ import {
 	PostgresDialect,
 	Updateable,
 } from 'kysely'
-import { color } from '../functions'
+import { color } from '../utils/colorUtils'
 import { PlayerStatus } from './PlayerState'
 
 const VERSION = 0.1

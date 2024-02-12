@@ -1,7 +1,7 @@
 import { FileMigrationProvider, Kysely, Migrator, NO_MIGRATIONS, PostgresDialect } from 'kysely'
 import { Pool, PoolConfig } from 'pg'
 import { Character, Criteria, Database, GameState, Location, Player, Tables } from './dbTypes'
-import { color } from '../../functions'
+import { color } from '../../utils/colorUtils'
 import path from 'path'
 import { promises as fs } from 'fs'
 

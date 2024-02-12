@@ -1,7 +1,7 @@
 import { Collection, Snowflake } from 'discord.js'
 import Discord from './Discord'
 import Database from './Database'
-import { color } from '../functions'
+import { color } from '../utils/colorUtils'
 import { GameCharacterData } from '../characters/GameCharacter'
 import { gameCharacterDataFromName } from '../characters'
 

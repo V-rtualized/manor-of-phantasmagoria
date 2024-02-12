@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, SlashCommandUserOption } from 'discord.js'
-import { getThemeColor } from '../functions'
+import { getThemeColor } from '../utils/colorUtils'
 import { SlashCommand } from '../types'
 import GameState from '../services/GameState'
 import PlayerState from '../services/PlayerState'
